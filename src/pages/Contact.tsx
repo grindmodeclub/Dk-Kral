@@ -120,14 +120,67 @@ const Contact = ({ language }: ContactProps) => {
     { day: translations.days.weekend[language], hours: translations.closed[language] },
   ];
 
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dentist",
+    "name": "DK KRÁL – Dentální hygiena a Implantologie",
+    "@id": "https://dkkral.cz",
+    "url": "https://dkkral.cz/kontakt",
+    "telephone": "+420770600076",
+    "email": "recepce@dkkral.cz",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Resslova 745/5",
+      "addressLocality": "Hradec Králové",
+      "addressRegion": "Královéhradecký kraj",
+      "postalCode": "500 02",
+      "addressCountry": "CZ"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 50.216445,
+      "longitude": 15.8247235
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday"],
+        "opens": "07:30",
+        "closes": "15:30"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Thursday",
+        "opens": "07:30",
+        "closes": "14:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Friday",
+        "opens": "07:30",
+        "closes": "11:30"
+      }
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+420770600076",
+      "contactType": "reservations",
+      "availableLanguage": ["Czech", "English"]
+    }
+  };
+
   const seoContent = {
     title: {
-      cs: 'Kontakt | Zubní ordinace Hradec Králové - DK KRÁL',
-      en: 'Contact | Dental Office Hradec Králové - DK KRÁL',
+      cs: 'Kontakt – Zubař Hradec Králové | Ordinační hodiny | DK KRÁL',
+      en: 'Contact – Dentist Hradec Králové | Opening Hours | DK KRÁL',
     },
     description: {
-      cs: 'Adresa: Resslova 745/5, Hradec Králové. Telefon: +420 770 600 076. Přijímáme nové pacienty na dentální hygienu.',
-      en: 'Address: Resslova 745/5, Hradec Králové. Phone: +420 770 600 076. Accepting new patients for dental hygiene.',
+      cs: 'Zubní ordinace DK KRÁL: Resslova 745/5, Hradec Králové. Tel: +420 770 600 076. Ordinační hodiny Po–Pá 7:30–15:30. Přijímáme nové pacienty na dentální hygienu.',
+      en: 'Dental clinic DK KRÁL: Resslova 745/5, Hradec Králové. Tel: +420 770 600 076. Opening hours Mon–Fri 7:30–15:30. Accepting new patients for dental hygiene.',
+    },
+    keywords: {
+      cs: 'kontakt zubař Hradec Králové, zubní ordinace Resslova HK, objednání zubař HK, ordinační hodiny DK KRÁL, telefon zubař Hradec Králové, adresa zubaře HK, jak se objednat k zubaři Hradec Králové',
+      en: 'contact dentist Hradec Králové, dental office opening hours HK, book dentist appointment HK',
     },
   };
 
@@ -136,6 +189,9 @@ const Contact = ({ language }: ContactProps) => {
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
+        keywords={seoContent.keywords[language]}
+        canonicalUrl="https://dkkral.cz/kontakt"
+        structuredData={contactSchema}
       />
       <BackgroundParticles />
 

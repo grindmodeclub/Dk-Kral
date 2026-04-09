@@ -210,14 +210,35 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
     return price;
   };
 
+  const pricingSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Ceník zubní ordinace DK KRÁL – Hradec Králové",
+    "url": "https://dkkral.cz/cenik",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Dentální hygiena dospělý – 2 280 Kč" },
+      { "@type": "ListItem", "position": 2, "name": "Dentální hygiena dítě do 15 let – 1 140 Kč" },
+      { "@type": "ListItem", "position": 3, "name": "Bělení zubů kombinované – 6 745 Kč" },
+      { "@type": "ListItem", "position": 4, "name": "Bělení zubů ordinační – 3 580 Kč" },
+      { "@type": "ListItem", "position": 5, "name": "Zubní implantát – od 16 000 Kč" },
+      { "@type": "ListItem", "position": 6, "name": "Keramická korunka – od 13 200 Kč" },
+      { "@type": "ListItem", "position": 7, "name": "Fazeta celokeramická – od 14 000 Kč" },
+      { "@type": "ListItem", "position": 8, "name": "Endodoncie – 5 160–14 620 Kč" }
+    ]
+  };
+
   const seoContent = {
     title: {
-      cs: 'Ceník zubař Hradec Králové | Výkony a Hygiena | DK KRÁL',
-      en: 'Dentist Price List Hradec Králové | Procedures & Hygiene | DK KRÁL',
+      cs: 'Ceník zubaře Hradec Králové | Transparentní ceny | DK KRÁL',
+      en: 'Dentist Price List Hradec Králové | Transparent Pricing | DK KRÁL',
     },
     description: {
-      cs: 'Podívejte se na aktuální ceník zubaře v Hradci Králové. Transparentní ceny za výplně, dentální hygienu, implantáty a bělení zubů u DK KRÁL.',
-      en: 'Transparent pricing. Check the prices of fillings, dental hygiene, teeth whitening and implants. Investment in your healthy smile.',
+      cs: 'Ceník DK KRÁL: dentální hygiena od 1 140 Kč, implantát od 16 000 Kč, bělení zubů od 3 580 Kč, výplň od 2 580 Kč. Transparentní ceny bez překvapení v centru Hradce Králové.',
+      en: 'DK KRÁL price list: dental hygiene from 1 140 CZK, implant from 16 000 CZK, teeth whitening from 3 580 CZK. Transparent pricing in Hradec Králové.',
+    },
+    keywords: {
+      cs: 'ceník zubaře Hradec Králové, cena dentální hygiena HK, cena implantát HK, cena bělení zubů HK, ceník zubního ošetření, kolik stojí zubař Hradec Králové, cena endodoncie HK, cena keramická korunka HK, fazety cena HK',
+      en: 'dentist price list Hradec Králové, dental hygiene cost HK, implant cost HK, teeth whitening price HK',
     },
   };
 
@@ -226,6 +247,9 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
+        keywords={seoContent.keywords[language]}
+        canonicalUrl="https://dkkral.cz/cenik"
+        structuredData={pricingSchema}
       />
       <BackgroundParticles />
 

@@ -87,12 +87,16 @@ const Process = ({ language }: ProcessProps) => {
 
   const seoContent = {
     title: {
-      cs: 'Průběh léčby | Jak probíhá ošetření | DK KRÁL',
-      en: 'Treatment Process | How Treatment Works | DK KRÁL',
+      cs: 'Průběh léčby u zubaře Hradec Králové | Jak ošetření probíhá | DK KRÁL',
+      en: 'Dental Treatment Process Hradec Králové | How It Works | DK KRÁL',
     },
     description: {
-      cs: 'Zjistěte jak probíhá léčba v naší ordinaci. Od vstupní prohlídky přes návrh terapie až po prevenci. Bezbolestné a šetrné ošetření.',
-      en: 'Discover how treatment works in our clinic. From initial examination through treatment plan to prevention. Painless and gentle treatment.',
+      cs: 'Jak probíhá ošetření u zubaře DK KRÁL v Hradci Králové? Vstupní prohlídka, RTG, návrh terapie, bezbolestná léčba a pravidelná dentální hygiena pro zdravý chrup.',
+      en: 'How does dental treatment at DK KRÁL in Hradec Králové work? Initial X-ray examination, treatment plan, painless care and regular hygiene for long-term dental health.',
+    },
+    keywords: {
+      cs: 'průběh léčby zubař Hradec Králové, vstupní prohlídka zubař HK, návrh terapie zubař, bezbolestné ošetření zubů HK, prevence zubního kazu HK, jak probíhá implantát HK, přijetí do péče zubař Hradec Králové',
+      en: 'dental treatment process Hradec Králové, initial dental examination HK, painless dental treatment HK',
     },
   };
 
@@ -101,7 +105,8 @@ const Process = ({ language }: ProcessProps) => {
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
-        canonicalUrl="https://dkkral.cz/prubeh-lecby"
+        keywords={seoContent.keywords[language]}
+        canonicalUrl="https://dkkral.cz/prubeh"
       />
       <BackgroundParticles />
 

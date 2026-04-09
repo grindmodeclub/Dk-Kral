@@ -71,18 +71,25 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
     { icon: Shield, title: translations.features.safety[language] },
   ];
 
-  const structuredData = {
+  const dentistSchema = {
     "@context": "https://schema.org",
-    "@type": "Dentist",
-    "name": "DK KRÁL",
-    "image": "https://dkkral.cz/logo.png",
+    "@type": ["Dentist", "LocalBusiness", "MedicalBusiness"],
+    "name": "DK KRÁL – Dentální hygiena a Implantologie",
+    "alternateName": ["DK Král", "DK KRAL", "Zubař Hradec Králové DK Král"],
+    "image": [
+      "https://dkkral.cz/hero-reception.jpg",
+      "https://dkkral.cz/logo_dk_kral_gold.png"
+    ],
     "@id": "https://dkkral.cz",
     "url": "https://dkkral.cz",
     "telephone": "+420770600076",
+    "email": "recepce@dkkral.cz",
+    "description": "Soukromá zubní klinika v centru Hradce Králové. Specializujeme se na dentální hygienu (GBT protokol), implantáty, bělení zubů, endodoncii a komplexní stomatologickou péči. MDDr. Ondřej Král.",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Resslova 745/5",
       "addressLocality": "Hradec Králové",
+      "addressRegion": "Královéhradecký kraj",
       "postalCode": "500 02",
       "addressCountry": "CZ"
     },
@@ -91,29 +98,122 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
       "latitude": 50.216445,
       "longitude": 15.8247235
     },
+    "hasMap": "https://maps.google.com/?cid=DK+Kr%C3%A1l+Dent%C3%A1ln%C3%AD+hygiena",
     "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday"],
         "opens": "07:30",
-        "closes": "16:00"
+        "closes": "15:30"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Thursday",
+        "opens": "07:30",
+        "closes": "14:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Friday",
+        "opens": "07:30",
+        "closes": "11:30"
       }
     ],
-    "priceRange": "$$"
+    "priceRange": "$$",
+    "currenciesAccepted": "CZK",
+    "paymentAccepted": "Cash, Credit Card",
+    "areaServed": [
+      { "@type": "City", "name": "Hradec Králové" },
+      { "@type": "City", "name": "Pardubice" },
+      { "@type": "City", "name": "Třebechovice pod Orebem" },
+      { "@type": "City", "name": "Nový Bydžov" }
+    ],
+    "medicalSpecialty": [
+      "Dentistry",
+      "Oral Surgery",
+      "Dental Hygiene",
+      "Implantology"
+    ],
+    "availableService": [
+      { "@type": "MedicalProcedure", "name": "Dentální hygiena GBT", "url": "https://dkkral.cz/sluzby" },
+      { "@type": "MedicalProcedure", "name": "Zubní implantáty", "url": "https://dkkral.cz/sluzby" },
+      { "@type": "MedicalProcedure", "name": "Bělení zubů", "url": "https://dkkral.cz/sluzby" },
+      { "@type": "MedicalProcedure", "name": "Endodoncie – kořenové kanálky", "url": "https://dkkral.cz/sluzby" },
+      { "@type": "MedicalProcedure", "name": "Keramické fazety a korunky", "url": "https://dkkral.cz/sluzby" },
+      { "@type": "MedicalProcedure", "name": "Fotokompozitní výplně", "url": "https://dkkral.cz/sluzby" }
+    ],
+    "sameAs": [
+      "https://dkkral.cz"
+    ]
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Kde se nachází zubař DK KRÁL v Hradci Králové?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Zubní ordinace DK KRÁL se nachází na adrese Resslova 745/5, 500 02 Hradec Králové. Ordinace je snadno dostupná z centra města."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Jaké jsou ordinační hodiny zubaře DK KRÁL?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ordinační hodiny: Pondělí–Středa 7:30–15:30, Čtvrtek 7:30–14:00, Pátek 7:30–11:30. Víkendy zavřeno."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Přijímá DK KRÁL nové pacienty?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ano, DK KRÁL přijímá nové pacienty, zejména na dentální hygienu. Pro objednání zavolejte na +420 770 600 076 nebo napište na recepce@dkkral.cz."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kolik stojí dentální hygiena v DK KRÁL?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Vstupní ošetření dentální hygienistkou pro dospělé stojí 2 280 Kč, pro děti do 15 let 1 140 Kč. Opakované ošetření (RECALL) od 1 140 Kč."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Nabízí DK KRÁL zubní implantáty?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ano, DK KRÁL nabízí kompletní implantologickou péči. Cena zubního implantátu začíná od 16 000 Kč, korunka na implantát od 15 400 Kč."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Jak probíhá bělení zubů v DK KRÁL?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nabízíme ordinační bělení (3 580 Kč), domácí bělení s nosiči a gely (7 315 Kč) a kombinované bělení (6 745 Kč). Výsledky jsou viditelné ihned po první proceduře."
+        }
+      }
+    ]
   };
 
   const seoContent = {
     title: {
-      cs: 'Zubař Hradec Králové | DK KRÁL - Dentální hygiena a Implantáty',
-      en: 'Dentist Hradec Králové | DK KRÁL - Dental Hygiene & Implants',
+      cs: 'Zubař Hradec Králové | DK KRÁL – Implantáty, Dentální hygiena, Bělení',
+      en: 'Dentist Hradec Králové | DK KRÁL – Implants, Dental Hygiene, Whitening',
     },
     description: {
-      cs: 'Hledáte špičkového zubaře v Hradci Králové? DK KRÁL nabízí komplexní péči: implantáty, bělení zubů a dentální hygienu. Objednejte se online.',
-      en: 'Looking for a top dentist in Hradec Králové? DK KRÁL offers comprehensive care: implants, teeth whitening, and dental hygiene. Book online.',
+      cs: 'Soukromá zubní ordinace DK KRÁL v centru Hradce Králové. Implantáty od 16 000 Kč, bělení zubů, dentální hygiena GBT. MDDr. Ondřej Král – objednejte se: +420 770 600 076.',
+      en: 'Private dental clinic DK KRÁL in the centre of Hradec Králové. Implants from 16 000 CZK, teeth whitening, GBT dental hygiene. MDDr. Ondřej Král – book: +420 770 600 076.',
     },
     keywords: {
-      cs: 'zubař Hradec Králové, zubní klinika HK, dentální hygiena, implantáty, bělení zubů, MDDr. Ondřej Král',
-      en: 'dentist Hradec Králové, dental clinic HK, dental hygiene, implants, teeth whitening, MDDr. Ondřej Král',
+      cs: 'zubař Hradec Králové, zubar Hradec Kralove, zubař HK, zubní ordinace Hradec Králové, dentální hygiena Hradec Králové, implantáty Hradec Králové, bělení zubů Hradec Králové, DK KRÁL, MDDr. Ondřej Král, soukromý zubař HK, záchovná stomatologie, endodoncie HK, keramické korunky HK, fazety HK, GBT hygiena',
+      en: 'dentist Hradec Králové, dental hygiene Hradec Králové, implants Hradec Králové, teeth whitening Hradec Králové, DK KRÁL, MDDr. Ondřej Král, private dentist HK',
     },
   };
 
@@ -123,7 +223,9 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
         title={seoContent.title[language]}
         description={seoContent.description[language]}
         keywords={seoContent.keywords[language]}
-        structuredData={structuredData}
+        canonicalUrl="https://dkkral.cz"
+        ogImage="https://dkkral.cz/hero-reception.jpg"
+        structuredData={[dentistSchema, faqSchema]}
       />
       <BackgroundParticles />
 

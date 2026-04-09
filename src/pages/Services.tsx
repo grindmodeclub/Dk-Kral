@@ -88,14 +88,71 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
     onNavigate?.('pricing', categoryId);
   };
 
+  const servicesSchema = {
+    "@context": "https://schema.org",
+    "@type": "MedicalClinic",
+    "name": "DK KRÁL",
+    "url": "https://dkkral.cz/sluzby",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Stomatologické služby DK KRÁL",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "MedicalProcedure",
+            "name": "Dentální hygiena GBT",
+            "description": "Profesionální čištění zubů metodou GBT (Guided Biofilm Therapy). Ošetření pod dásní, bělení, prevence parodontózy."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "MedicalProcedure",
+            "name": "Zubní implantáty Hradec Králové",
+            "description": "Náhrada chybějícího zubu titanovým implantátem. Trvalé řešení pro dlouhodobé zdraví chrupu."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "MedicalProcedure",
+            "name": "Bělení zubů",
+            "description": "Ordinační, domácí nebo kombinované bělení zubů s okamžitým výsledkem."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "MedicalProcedure",
+            "name": "Endodoncie – kořenové kanálky",
+            "description": "Kompletní endodontické ošetření kořenových kanálků pro záchranu zubu."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "MedicalProcedure",
+            "name": "Keramické fazety a korunky",
+            "description": "Estetická protetika: celokeramické fazety a korunky pro dokonalý úsměv."
+          }
+        }
+      ]
+    }
+  };
+
   const seoContent = {
     title: {
-      cs: 'Stomatologie Hradec Králové | Služby a Zákroky | DK KRÁL',
-      en: 'Dentistry Hradec Králové | Services & Procedures | DK KRÁL',
+      cs: 'Zubní služby Hradec Králové | Implantáty, Dentální hygiena, Bělení | DK KRÁL',
+      en: 'Dental Services Hradec Králové | Implants, Hygiene, Whitening | DK KRÁL',
     },
     description: {
-      cs: 'Provádíme záchovnou stomatologii, endodoncii, chirurgické zákroky a protetiku. Moderní vybavení a bezbolestný přístup v centru HK.',
-      en: 'We provide restorative dentistry, endodontics, surgical procedures, and prosthetics. Modern equipment and painless approach in HK center.',
+      cs: 'Zubní klinika DK KRÁL nabízí: dentální hygienu GBT, implantáty, bělení zubů, endodoncii, fazety a korunky. Bezbolestné ošetření, centrum Hradce Králové.',
+      en: 'Dental clinic DK KRÁL offers: GBT dental hygiene, implants, teeth whitening, endodontics, veneers and crowns. Painless treatment, centre of Hradec Králové.',
+    },
+    keywords: {
+      cs: 'dentální hygiena Hradec Králové, implantáty HK, bělení zubů Hradec Králové, GBT hygiena HK, endodoncie Hradec Králové, kořenové kanálky HK, fazety zubů HK, keramické korunky HK, protetika Hradec Králové, chirurgie zubů HK, extrakce zubu HK, záchovná stomatologie HK, fotokompozitní výplně HK',
+      en: 'dental hygiene Hradec Králové, implants HK, teeth whitening Hradec Králové, GBT hygiene, endodontics HK, veneers HK, ceramic crowns HK',
     },
   };
 
@@ -104,6 +161,9 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
+        keywords={seoContent.keywords[language]}
+        canonicalUrl="https://dkkral.cz/sluzby"
+        structuredData={servicesSchema}
       />
       <BackgroundParticles />
 
