@@ -13,6 +13,22 @@ import { useSwipe, useKeyboardNavigation } from './hooks/useSwipe';
 
 const pages = ['home', 'services', 'pricing', 'process', 'contact'];
 
+const PAGE_PATHS: Record<string, string> = {
+  home: '/',
+  services: '/sluzby',
+  pricing: '/cenik',
+  process: '/prubeh',
+  contact: '/kontakt',
+};
+
+const PATH_TO_PAGE: Record<string, string> = {
+  '/': 'home',
+  '/sluzby': 'services',
+  '/cenik': 'pricing',
+  '/prubeh': 'process',
+  '/kontakt': 'contact',
+};
+
 type PageProps = {
   language: Language;
   onNavigateNext?: () => void;
@@ -32,11 +48,38 @@ const pageComponents: Record<string, React.ComponentType<PageProps>> = {
 export type Language = 'cs' | 'en';
 
 function MainSite() {
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const getInitialPageIndex = () => {
+    const path = window.location.pathname;
+    const pageId = PATH_TO_PAGE[path] || 'home';
+    return Math.max(0, pages.indexOf(pageId));
+  };
+
+  const [currentPageIndex, setCurrentPageIndex] = useState(getInitialPageIndex);
   const [language, setLanguage] = useState<Language>('cs');
   const [targetSectionId, setTargetSectionId] = useState<string | null>(null);
-  const previousPageIndex = useRef(0);
+  const previousPageIndex = useRef(currentPageIndex);
   const currentPage = pages[currentPageIndex];
+
+  useEffect(() => {
+    const newPath = PAGE_PATHS[currentPage] || '/';
+    if (window.location.pathname !== newPath) {
+      window.history.pushState(null, '', newPath);
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const pageId = PATH_TO_PAGE[path] || 'home';
+      const index = pages.indexOf(pageId);
+      if (index !== -1) {
+        previousPageIndex.current = currentPageIndex;
+        setCurrentPageIndex(index);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentPageIndex]);
 
   useEffect(() => {
     if (!targetSectionId && currentPageIndex !== previousPageIndex.current) {
@@ -64,7 +107,7 @@ function MainSite() {
     const index = pages.indexOf(pageId);
     if (index !== -1) {
       previousPageIndex.current = currentPageIndex;
-      setTargetSectionId(sectionId || null);
+      setTargetSectionId(sectionId ?? null);
       setCurrentPageIndex(index);
     }
   };
