@@ -271,7 +271,7 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
               }}
               className="relative px-8 md:px-16 py-8 md:py-12 bg-white/70 rounded-3xl shadow-xl cursor-pointer hover:bg-white/80 transition-all"
             >
-              <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-dark mb-4">
                 {translations.heroTitle[language]}
               </h1>
               <p className="text-3xl md:text-4xl font-light text-dark/80">
