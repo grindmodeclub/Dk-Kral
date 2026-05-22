@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Calendar, DollarSign, Users, LogOut, Menu, X, Home } from 'lucide-react';
+import { Calendar, DollarSign, Users, LogOut, Menu, X, Home, Star } from 'lucide-react';
 import HolidaysManager from './HolidaysManager';
 import PricingManager from './PricingManager';
 import TeamManager from './TeamManager';
+import FeaturedServicesManager from './FeaturedServicesManager';
 
-type Tab = 'holidays' | 'pricing' | 'team';
+type Tab = 'holidays' | 'pricing' | 'team' | 'featured';
 
 export default function AdminLayout() {
   const [activeTab, setActiveTab] = useState<Tab>('holidays');
@@ -16,6 +17,7 @@ export default function AdminLayout() {
     { id: 'holidays' as Tab, label: 'Dovolená', icon: Calendar },
     { id: 'pricing' as Tab, label: 'Ceník', icon: DollarSign },
     { id: 'team' as Tab, label: 'Tým', icon: Users },
+    { id: 'featured' as Tab, label: 'Vybrané služby', icon: Star },
   ];
 
   const handleTabChange = (tab: Tab) => {
@@ -90,6 +92,7 @@ export default function AdminLayout() {
           {activeTab === 'holidays' && <HolidaysManager />}
           {activeTab === 'pricing' && <PricingManager />}
           {activeTab === 'team' && <TeamManager />}
+          {activeTab === 'featured' && <FeaturedServicesManager />}
         </main>
       </div>
     </div>

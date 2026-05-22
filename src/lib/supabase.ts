@@ -40,3 +40,15 @@ export type TeamMember = {
   display_order: number;
   created_at: string;
 };
+
+export type FeaturedService = {
+  id: string;
+  title_cs: string;
+  title_en: string;
+  description_cs: string;
+  description_en: string;
+  price_string: string;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+};

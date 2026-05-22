@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronRight, Award, Heart, Shield, User } from 'lucide-react';
+import { ChevronDown, ChevronRight, Award, Heart, Shield, User, CalendarOff } from 'lucide-react';
 import BackgroundParticles from '../components/BackgroundParticles';
 import SwipeHint from '../components/SwipeHint';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
-import { supabase, TeamMember } from '../lib/supabase';
+import { supabase, TeamMember, PlannedHoliday, FeaturedService } from '../lib/supabase';
 import { Language } from '../App';
 
 const translations = {
@@ -48,9 +48,13 @@ interface HomeProps {
 const Home = ({ language, onNavigateNext }: HomeProps) => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
+  const [activeHolidays, setActiveHolidays] = useState<PlannedHoliday[]>([]);
+  const [featuredServices, setFeaturedServices] = useState<FeaturedService[]>([]);
 
   useEffect(() => {
     fetchTeamMembers();
+    fetchActiveHolidays();
+    fetchFeaturedServices();
   }, []);
 
   const fetchTeamMembers = async () => {
@@ -63,6 +67,41 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
       setTeamMembers(data);
     }
     setLoadingTeam(false);
+  };
+
+  const fetchActiveHolidays = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await supabase
+      .from('planned_holidays')
+      .select('*')
+      .eq('is_active', true)
+      .gte('end_date', today)
+      .order('start_date');
+
+    if (data) {
+      setActiveHolidays(data);
+    }
+  };
+
+  const fetchFeaturedServices = async () => {
+    const { data } = await supabase
+      .from('featured_services')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order');
+
+    if (data) {
+      setFeaturedServices(data);
+    }
+  };
+
+  const formatDateRange = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const formatOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'numeric', year: 'numeric' };
+    const locale = language === 'cs' ? 'cs-CZ' : 'en-GB';
+    if (startDate === endDate) return start.toLocaleDateString(locale, formatOptions);
+    return `${start.toLocaleDateString(locale, formatOptions)} – ${end.toLocaleDateString(locale, formatOptions)}`;
   };
 
   const features = [
@@ -419,6 +458,46 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
         </section>
       )}
 
+      {activeHolidays.length > 0 && (
+        <section className="bg-white px-6 lg:px-12 py-8 relative">
+          <div className="max-w-4xl mx-auto relative z-10">
+            <Reveal>
+              <div className="bg-gradient-to-r from-gold/5 to-gold/10 rounded-xl border-2 border-gold/30 p-6 shadow-md overflow-hidden">
+                <div className="flex items-start gap-4 w-full overflow-hidden">
+                  <div className="flex-shrink-0">
+                    <div className="inline-flex items-center justify-center w-10 h-10 bg-gold/20 rounded-full">
+                      <CalendarOff className="text-gold" size={20} />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0 max-w-full">
+                    <h4 className="text-xl font-bold text-dark mb-3">
+                      {language === 'cs' ? 'Změny v ordinačních hodinách' : 'Schedule Changes'}
+                    </h4>
+                    <div className="space-y-3 w-full overflow-hidden">
+                      {activeHolidays.map((holiday) => (
+                        <div key={holiday.id} className="flex items-start gap-3 text-dark/80 w-full">
+                          <div className="w-2 h-2 bg-gold rounded-full flex-shrink-0 mt-2" />
+                          <div className="flex-1 min-w-0 max-w-full">
+                            <p className="text-base break-words max-w-full">
+                              <span className="font-semibold">{formatDateRange(holiday.start_date, holiday.end_date)}</span>
+                              <span className="mx-2">|</span>
+                              <span>{language === 'en' && holiday.description_en ? holiday.description_en : holiday.description}</span>
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-sm text-dark/60 italic">
+                      {language === 'cs' ? 'V případě akutních problémů kontaktujte pohotovost.' : 'In case of emergencies, please contact emergency services.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
       <section className="bg-white px-6 lg:px-12 py-16 relative">
         <div className="max-w-5xl mx-auto relative z-10">
           <Reveal>
@@ -432,88 +511,27 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
                   : 'Private dental clinic in the centre of Hradec Králové. We specialize in dental hygiene (GBT protocol), implants, teeth whitening, endodontics, and comprehensive dental care.'}
               </p>
 
-              <div className="grid md:grid-cols-2 gap-8 mb-12">
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-xl font-semibold text-dark mb-4">
-                    {language === 'cs' ? 'Dentální hygiena GBT' : 'GBT Dental Hygiene'}
-                  </h3>
-                  <p className="text-dark/70">
-                    {language === 'cs'
-                      ? 'Profesionální čištění zubů metodou GBT (Guided Biofilm Therapy). Ošetření pod dásní, bělení, prevence parodontózy.'
-                      : 'Professional teeth cleaning using GBT (Guided Biofilm Therapy). Subgingival treatment, whitening, periodontitis prevention.'}
-                  </p>
+              {featuredServices.length > 0 && (
+                <div className="grid md:grid-cols-2 gap-8 mb-12">
+                  {featuredServices.map((service) => (
+                    <div key={service.id} className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:border-gold hover:shadow-md transition-all">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <h3 className="text-xl font-semibold text-dark">
+                          {language === 'cs' ? service.title_cs : service.title_en}
+                        </h3>
+                        {service.price_string && (
+                          <span className="text-sm font-bold whitespace-nowrap px-3 py-1 bg-gold/10 rounded-full" style={{ color: '#B99355' }}>
+                            {service.price_string}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-dark/70">
+                        {language === 'cs' ? service.description_cs : service.description_en}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-xl font-semibold text-dark mb-4">
-                    {language === 'cs' ? 'Zubní implantáty' : 'Dental Implants'}
-                  </h3>
-                  <p className="text-dark/70">
-                    {language === 'cs'
-                      ? 'Náhrada chybějícího zubu titanovým implantátem. Trvalé řešení pro dlouhodobé zdraví chrupu.'
-                      : 'Replacement of missing teeth with titanium implants. A permanent solution for long-term dental health.'}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-xl font-semibold text-dark mb-4">
-                    {language === 'cs' ? 'Bělení zubů' : 'Teeth Whitening'}
-                  </h3>
-                  <p className="text-dark/70">
-                    {language === 'cs'
-                      ? 'Ordinační, domácí nebo kombinované bělení zubů s okamžitým výsledkem.'
-                      : 'In-office, home, or combined teeth whitening with immediate results.'}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-xl font-semibold text-dark mb-4">
-                    {language === 'cs' ? 'Keramické fazety a korunky' : 'Ceramic Veneers & Crowns'}
-                  </h3>
-                  <p className="text-dark/70">
-                    {language === 'cs'
-                      ? 'Estetická protetika: celokeramické fazety a korunky pro dokonalý úsměv.'
-                      : 'Aesthetic prosthetics: all-ceramic veneers and crowns for a perfect smile.'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto mb-12">
-                <table className="w-full border-collapse bg-white rounded-xl overflow-hidden border border-gray-200">
-                  <caption className="text-lg font-semibold text-dark mb-4">
-                    {language === 'cs' ? 'Vybrané ceny' : 'Selected Prices'}
-                  </caption>
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="text-left px-6 py-3 text-dark font-semibold border-b border-gray-200">
-                        {language === 'cs' ? 'Služba' : 'Service'}
-                      </th>
-                      <th className="text-right px-6 py-3 text-dark font-semibold border-b border-gray-200">
-                        {language === 'cs' ? 'Cena' : 'Price'}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Dentální hygiena – dospělí' : 'Dental hygiene – adults'}</td>
-                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>2 280 Kč</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Dentální hygiena – děti do 15 let' : 'Dental hygiene – children under 15'}</td>
-                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>1 140 Kč</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Bělení zubů – ordinační' : 'Teeth whitening – in-office'}</td>
-                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>3 580 Kč</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Zubní implantát' : 'Dental implant'}</td>
-                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>{language === 'cs' ? 'od 16 000 Kč' : 'from 16 000 CZK'}</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80">{language === 'cs' ? 'Korunka na implantát' : 'Crown on implant'}</td>
-                      <td className="px-6 py-3 text-right font-semibold" style={{ color: '#B99355' }}>{language === 'cs' ? 'od 15 400 Kč' : 'from 15 400 CZK'}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              )}
 
               <div className="overflow-x-auto mb-12">
                 <table className="w-full border-collapse bg-white rounded-xl overflow-hidden border border-gray-200">
