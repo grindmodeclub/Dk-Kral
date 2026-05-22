@@ -257,7 +257,7 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
         <div className="absolute inset-0 z-0">
           <img
             src="/dsc_4507.jpg"
-            alt="Dental pricing"
+            alt="Ceník zubních služeb DK KRÁL Hradec Králové"
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-white/20" />

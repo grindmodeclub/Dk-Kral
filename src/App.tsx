@@ -160,7 +160,7 @@ function MainSite() {
         showNext={currentPageIndex < pages.length - 1}
       />
 
-      <div
+      <main
         className="w-full h-screen"
         {...swipeHandlers}
       >
@@ -189,7 +189,7 @@ function MainSite() {
             />
           </motion.div>
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 }

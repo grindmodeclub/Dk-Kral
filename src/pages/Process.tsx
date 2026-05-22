@@ -114,7 +114,7 @@ const Process = ({ language }: ProcessProps) => {
         <div className="absolute inset-0 z-0">
           <img
             src="/prubeh_lecby.jpg"
-            alt="Dental treatment process"
+            alt="Průběh léčby u zubaře DK KRÁL v Hradci Králové"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-white/30" />

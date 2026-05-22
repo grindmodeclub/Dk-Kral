@@ -18,8 +18,8 @@ const translations = {
     en: 'Opening Hours',
   },
   sectionTitle: {
-    cs: 'Kde nás najdete',
-    en: 'Where to Find Us',
+    cs: 'Kde nás najdete v Hradci Králové',
+    en: 'Where to Find Us in Hradec Králové',
   },
   address: {
     cs: 'Adresa:',
@@ -276,16 +276,18 @@ const Contact = ({ language }: ContactProps) => {
             </div>
             <div>
               <h3 className="text-xl font-semibold text-dark mb-2">{translations.address[language]}</h3>
-              <a
-                href="https://www.google.com/maps/place/DK+Kr%C3%A1l+-+Dent%C3%A1ln%C3%AD+hygiena/@50.2162561,15.8247741,77m/data=!3m1!1e3!4m15!1m8!3m7!1s0x470c2b26172ee531:0x815dfec9ae6f5708!2sResslova+745%2F5,+500+02+Hradec+Kr%C3%A1lov%C3%A9+2!3b1!8m2!3d50.2164465!4d15.8247182!16s%2Fg%2F11s47cw1y7!3m5!1s0x470c2be7b3a969b3:0xdd5fc2208575f0a1!8m2!3d50.216445!4d15.8247235!16s%2Fg%2F11l6xb5yx8?hl=cs&entry=ttu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block hover:text-gold transition-colors"
-              >
-                <p className="text-lg text-dark/80 hover:text-gold transition-colors">Resslova 745/5</p>
-                <p className="text-lg text-dark/80 hover:text-gold transition-colors">Hradec Králové</p>
-                <p className="text-lg text-dark/80 hover:text-gold transition-colors">500 02</p>
-              </a>
+              <address className="not-italic">
+                <a
+                  href="https://maps.google.com/?cid=15951681850103427233"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block hover:text-gold transition-colors"
+                >
+                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">Resslova 745/5</p>
+                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">Hradec Králové</p>
+                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">500 02</p>
+                </a>
+              </address>
               <p className="text-base text-dark/60 mt-2">IČO: 143 45 111</p>
             </div>
           </div>

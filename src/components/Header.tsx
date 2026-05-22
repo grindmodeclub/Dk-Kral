@@ -59,7 +59,7 @@ const Header = ({ onNavigate, currentPage, language, onLanguageChange, pages }: 
             >
               <img
                 src="/logo_dk_kral_gold.png"
-                alt="DK KRÁL"
+                alt="DK KRÁL - Zubař Hradec Králové"
                 className="h-10 w-auto"
               />
             </div>

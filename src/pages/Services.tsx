@@ -11,8 +11,8 @@ const translations = {
     en: 'Our Services',
   },
   sectionTitle: {
-    cs: 'Naše služby',
-    en: 'Our Services',
+    cs: 'Naše stomatologické služby',
+    en: 'Our Dental Services',
   },
   categories: {
     dental: {
@@ -171,7 +171,7 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
         <div className="absolute inset-0 z-0">
           <img
             src="/berrb_erbrebre_(1).jpg"
-            alt="Dental services"
+            alt="Stomatologické služby DK KRÁL - dentální hygiena a implantáty Hradec Králové"
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-white/20" />

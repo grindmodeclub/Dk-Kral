@@ -10,16 +10,16 @@ import { Language } from '../App';
 
 const translations = {
   heroTitle: {
-    cs: 'Stomatologie',
-    en: 'Dental Care',
+    cs: 'Zubař Hradec Králové – DK KRÁL',
+    en: 'Dentist Hradec Králové – DK KRÁL',
   },
   heroSubtitle: {
-    cs: 'v Hradci Králové',
-    en: 'in Hradec Kralove',
+    cs: 'Stomatologie v Hradci Králové',
+    en: 'Dental Care in Hradec Králové',
   },
   aboutTitle: {
-    cs: 'Špičková péče o váš úsměv',
-    en: 'Premium Care for Your Smile',
+    cs: 'Naše stomatologické služby',
+    en: 'Our Dental Services',
   },
   aboutDescription: {
     cs: 'Naše klinika v srdci Hradce Králové kombinuje nejmodernější technologie s individuálním přístupem. Zaměřujeme se na bezbolestné ošetření, estetickou dokonalost a dlouhodobé zdraví vašich zubů.',
@@ -31,8 +31,8 @@ const translations = {
     safety: { cs: 'Bezpečnost', en: 'Safety' },
   },
   teamTitle: {
-    cs: 'Náš tým',
-    en: 'Our Team',
+    cs: 'Náš tým specialistů',
+    en: 'Our Team of Specialists',
   },
   teamSubtitle: {
     cs: 'Zkušení odborníci s vášní pro stomatologii',
@@ -217,6 +217,22 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
     },
   };
 
+  const faqItems = language === 'cs' ? [
+    { q: 'Kde se nachází zubař DK KRÁL v Hradci Králové?', a: 'Zubní ordinace DK KRÁL se nachází na adrese Resslova 745/5, 500 02 Hradec Králové. Ordinace je snadno dostupná z centra města.' },
+    { q: 'Jaké jsou ordinační hodiny zubaře DK KRÁL?', a: 'Ordinační hodiny: Pondělí–Středa 7:30–15:30, Čtvrtek 7:30–14:00, Pátek 7:30–11:30. Víkendy zavřeno.' },
+    { q: 'Přijímá DK KRÁL nové pacienty?', a: 'Ano, DK KRÁL přijímá nové pacienty, zejména na dentální hygienu. Pro objednání zavolejte na +420 770 600 076 nebo napište na recepce@dkkral.cz.' },
+    { q: 'Kolik stojí dentální hygiena v DK KRÁL?', a: 'Vstupní ošetření dentální hygienistkou pro dospělé stojí 2 280 Kč, pro děti do 15 let 1 140 Kč. Opakované ošetření (RECALL) od 1 140 Kč.' },
+    { q: 'Nabízí DK KRÁL zubní implantáty?', a: 'Ano, DK KRÁL nabízí kompletní implantologickou péči. Cena zubního implantátu začíná od 16 000 Kč, korunka na implantát od 15 400 Kč.' },
+    { q: 'Jak probíhá bělení zubů v DK KRÁL?', a: 'Nabízíme ordinační bělení (3 580 Kč), domácí bělení s nosiči a gely (7 315 Kč) a kombinované bělení (6 745 Kč). Výsledky jsou viditelné ihned po první proceduře.' },
+  ] : [
+    { q: 'Where is DK KRÁL dental clinic in Hradec Králové?', a: 'DK KRÁL dental clinic is located at Resslova 745/5, 500 02 Hradec Králové. The office is easily accessible from the city centre.' },
+    { q: 'What are the opening hours of DK KRÁL?', a: 'Opening hours: Monday–Wednesday 7:30–15:30, Thursday 7:30–14:00, Friday 7:30–11:30. Weekends closed.' },
+    { q: 'Does DK KRÁL accept new patients?', a: 'Yes, DK KRÁL accepts new patients, especially for dental hygiene. Call +420 770 600 076 or email recepce@dkkral.cz to book.' },
+    { q: 'How much does dental hygiene cost at DK KRÁL?', a: 'Initial dental hygiene for adults costs 2 280 CZK, for children under 15 it is 1 140 CZK. Follow-up (RECALL) from 1 140 CZK.' },
+    { q: 'Does DK KRÁL offer dental implants?', a: 'Yes, DK KRÁL provides complete implant care. Dental implant starts from 16 000 CZK, crown on implant from 15 400 CZK.' },
+    { q: 'How does teeth whitening work at DK KRÁL?', a: 'We offer in-office whitening (3 580 CZK), home whitening with trays and gels (7 315 CZK), and combined whitening (6 745 CZK). Results are visible immediately.' },
+  ];
+
   return (
     <div className="h-screen overflow-y-auto relative">
       <SEO
@@ -233,7 +249,7 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
         <div className="absolute inset-0 z-0">
           <img
             src="/dsc_4546_–_kopia_(1).jpg"
-            alt="Dental clinic"
+            alt="Zubní ordinace DK KRÁL v Hradci Králové - moderní recepce"
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-white/20" />
@@ -258,9 +274,9 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
               <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4">
                 {translations.heroTitle[language]}
               </h1>
-              <h2 className="text-3xl md:text-4xl font-light text-dark/80">
+              <p className="text-3xl md:text-4xl font-light text-dark/80">
                 {translations.heroSubtitle[language]}
-              </h2>
+              </p>
             </div>
             <div
               className="absolute left-1/2 -translate-x-1/2 z-20"
@@ -357,7 +373,7 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
                       {member.photo_url ? (
                         <img
                           src={member.photo_url}
-                          alt={member.full_name}
+                          alt={`${member.full_name} - Zubař DK KRÁL Hradec Králové`}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -402,6 +418,193 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
           </div>
         </section>
       )}
+
+      <section className="bg-white px-6 lg:px-12 py-16 relative">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <Reveal>
+            <article>
+              <h2 className="text-3xl md:text-4xl font-bold text-dark mb-6 text-center">
+                {language === 'cs' ? 'Přehled služeb a cen' : 'Services & Pricing Overview'}
+              </h2>
+              <p className="text-base md:text-lg text-dark/60 mb-8 text-center max-w-3xl mx-auto">
+                {language === 'cs'
+                  ? 'Soukromá zubní klinika v centru Hradce Králové. Specializujeme se na dentální hygienu (GBT protokol), implantáty, bělení zubů, endodoncii a komplexní stomatologickou péči.'
+                  : 'Private dental clinic in the centre of Hradec Králové. We specialize in dental hygiene (GBT protocol), implants, teeth whitening, endodontics, and comprehensive dental care.'}
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-8 mb-12">
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <h3 className="text-xl font-semibold text-dark mb-4">
+                    {language === 'cs' ? 'Dentální hygiena GBT' : 'GBT Dental Hygiene'}
+                  </h3>
+                  <p className="text-dark/70">
+                    {language === 'cs'
+                      ? 'Profesionální čištění zubů metodou GBT (Guided Biofilm Therapy). Ošetření pod dásní, bělení, prevence parodontózy.'
+                      : 'Professional teeth cleaning using GBT (Guided Biofilm Therapy). Subgingival treatment, whitening, periodontitis prevention.'}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <h3 className="text-xl font-semibold text-dark mb-4">
+                    {language === 'cs' ? 'Zubní implantáty' : 'Dental Implants'}
+                  </h3>
+                  <p className="text-dark/70">
+                    {language === 'cs'
+                      ? 'Náhrada chybějícího zubu titanovým implantátem. Trvalé řešení pro dlouhodobé zdraví chrupu.'
+                      : 'Replacement of missing teeth with titanium implants. A permanent solution for long-term dental health.'}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <h3 className="text-xl font-semibold text-dark mb-4">
+                    {language === 'cs' ? 'Bělení zubů' : 'Teeth Whitening'}
+                  </h3>
+                  <p className="text-dark/70">
+                    {language === 'cs'
+                      ? 'Ordinační, domácí nebo kombinované bělení zubů s okamžitým výsledkem.'
+                      : 'In-office, home, or combined teeth whitening with immediate results.'}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <h3 className="text-xl font-semibold text-dark mb-4">
+                    {language === 'cs' ? 'Keramické fazety a korunky' : 'Ceramic Veneers & Crowns'}
+                  </h3>
+                  <p className="text-dark/70">
+                    {language === 'cs'
+                      ? 'Estetická protetika: celokeramické fazety a korunky pro dokonalý úsměv.'
+                      : 'Aesthetic prosthetics: all-ceramic veneers and crowns for a perfect smile.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto mb-12">
+                <table className="w-full border-collapse bg-white rounded-xl overflow-hidden border border-gray-200">
+                  <caption className="text-lg font-semibold text-dark mb-4">
+                    {language === 'cs' ? 'Vybrané ceny' : 'Selected Prices'}
+                  </caption>
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="text-left px-6 py-3 text-dark font-semibold border-b border-gray-200">
+                        {language === 'cs' ? 'Služba' : 'Service'}
+                      </th>
+                      <th className="text-right px-6 py-3 text-dark font-semibold border-b border-gray-200">
+                        {language === 'cs' ? 'Cena' : 'Price'}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Dentální hygiena – dospělí' : 'Dental hygiene – adults'}</td>
+                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>2 280 Kč</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Dentální hygiena – děti do 15 let' : 'Dental hygiene – children under 15'}</td>
+                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>1 140 Kč</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Bělení zubů – ordinační' : 'Teeth whitening – in-office'}</td>
+                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>3 580 Kč</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Zubní implantát' : 'Dental implant'}</td>
+                      <td className="px-6 py-3 text-right font-semibold border-b border-gray-100" style={{ color: '#B99355' }}>{language === 'cs' ? 'od 16 000 Kč' : 'from 16 000 CZK'}</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80">{language === 'cs' ? 'Korunka na implantát' : 'Crown on implant'}</td>
+                      <td className="px-6 py-3 text-right font-semibold" style={{ color: '#B99355' }}>{language === 'cs' ? 'od 15 400 Kč' : 'from 15 400 CZK'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="overflow-x-auto mb-12">
+                <table className="w-full border-collapse bg-white rounded-xl overflow-hidden border border-gray-200">
+                  <caption className="text-lg font-semibold text-dark mb-4">
+                    {language === 'cs' ? 'Ordinační hodiny' : 'Opening Hours'}
+                  </caption>
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="text-left px-6 py-3 text-dark font-semibold border-b border-gray-200">
+                        {language === 'cs' ? 'Den' : 'Day'}
+                      </th>
+                      <th className="text-right px-6 py-3 text-dark font-semibold border-b border-gray-200">
+                        {language === 'cs' ? 'Hodiny' : 'Hours'}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Pondělí' : 'Monday'}</td>
+                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–15:30</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Úterý' : 'Tuesday'}</td>
+                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–15:30</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Středa' : 'Wednesday'}</td>
+                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–15:30</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Čtvrtek' : 'Thursday'}</td>
+                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–14:00</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Pátek' : 'Friday'}</td>
+                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–11:30</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-dark/80">{language === 'cs' ? 'Sobota, Neděle' : 'Saturday, Sunday'}</td>
+                      <td className="px-6 py-3 text-right font-medium text-dark/50">{language === 'cs' ? 'Zavřeno' : 'Closed'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="bg-gray-50 px-6 lg:px-12 py-16 relative">
+        <div className="max-w-4xl mx-auto relative z-10">
+          <Reveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-8 text-center">
+              {language === 'cs' ? 'Časté dotazy' : 'Frequently Asked Questions'}
+            </h2>
+            <div className="space-y-4">
+              {faqItems.map((item, index) => (
+                <details key={index} className="group bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <summary className="px-6 py-4 cursor-pointer text-lg font-medium text-dark hover:text-gold transition-colors list-none flex items-center justify-between">
+                    <span>{item.q}</span>
+                    <ChevronDown className="w-5 h-5 text-gold transition-transform group-open:rotate-180 flex-shrink-0 ml-4" />
+                  </summary>
+                  <div className="px-6 pb-4 text-dark/70 leading-relaxed">
+                    {item.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <footer className="bg-dark px-6 lg:px-12 py-12 relative">
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
+          <address className="not-italic text-white/80 mb-4 leading-relaxed">
+            <strong className="text-white">DK KRÁL – Dentální hygiena a Implantologie</strong><br />
+            Resslova 745/5, 500 02 Hradec Králové<br />
+            <a href="tel:+420770600076" className="text-gold hover:text-gold/80 transition-colors">+420 770 600 076</a>
+            {' | '}
+            <a href="mailto:recepce@dkkral.cz" className="text-gold hover:text-gold/80 transition-colors">recepce@dkkral.cz</a>
+          </address>
+          <a
+            href="https://maps.google.com/?cid=15951681850103427233"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-gold hover:text-gold/80 transition-colors underline"
+          >
+            {language === 'cs' ? 'Zobrazit na Google Maps' : 'View on Google Maps'}
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
