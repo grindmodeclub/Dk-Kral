@@ -50,7 +50,8 @@ export type Language = 'cs' | 'en';
 function MainSite() {
   const getInitialPageIndex = () => {
     const path = window.location.pathname;
-    const pageId = PATH_TO_PAGE[path] || 'home';
+    const pageId = PATH_TO_PAGE[path];
+    if (!pageId) return 0;
     return Math.max(0, pages.indexOf(pageId));
   };
 
@@ -194,17 +195,19 @@ function MainSite() {
 }
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdminPath = (path: string) =>
+    path === '/admin' || path.startsWith('/admin/');
+
+  const [isAdmin, setIsAdmin] = useState(() =>
+    isAdminPath(window.location.pathname)
+  );
 
   useEffect(() => {
-    const checkRoute = () => {
-      setIsAdmin(window.location.pathname === '/admin');
+    const handlePopState = () => {
+      setIsAdmin(isAdminPath(window.location.pathname));
     };
-
-    checkRoute();
-    window.addEventListener('popstate', checkRoute);
-
-    return () => window.removeEventListener('popstate', checkRoute);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   if (isAdmin) {
