@@ -42,8 +42,8 @@ const translations = {
     en: 'Schedule Changes',
   },
   emergencyNote: {
-    cs: 'V případě akutních problémů kontaktujte pohotovost.',
-    en: 'In case of emergencies, please contact emergency services.',
+    cs: 'V případě že se nedovoláte, prosím napište SMS.',
+    en: 'In case of emergencies, please send us SMS.',
   },
   closed: {
     cs: 'Zavřeno',
