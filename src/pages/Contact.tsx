@@ -7,6 +7,7 @@ import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
 import { supabase, PlannedHoliday } from '../lib/supabase';
 import { Language } from '../App';
+import ConsentIframe from '../components/consent/ConsentIframe';
 
 const translations = {
   heroTitle: {
@@ -298,7 +299,7 @@ const Contact = ({ language }: ContactProps) => {
             rel="noopener noreferrer"
             className="block rounded-xl overflow-hidden shadow-lg border border-gray-200 hover:border-gold hover:shadow-xl transition-all cursor-pointer"
           >
-            <iframe
+            <ConsentIframe category="functional"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2545.3267789757415!2d15.832092576741437!3d50.208246571256186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470c2b5d3e0a8d25%3A0x8f4b7e3c9d5a2b1c!2sResslova%20745%2F5%2C%20500%2002%20Hradec%20Kr%C3%A1lov%C3%A9!5e0!3m2!1scs!2scz!4v1736362890123!5m2!1scs!2scz"
               width="100%"
               height="400"
