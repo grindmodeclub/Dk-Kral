@@ -36,7 +36,7 @@
     siteName: null,
     categories: ['analytics', 'marketing', 'functional'],
     cookieTables: null,       // override per-category cookie lists: { analytics: [{name, provider, purpose, expiry}] }
-    google: { consentMode: true, adsDataRedaction: true, urlPassthrough: false },
+    google: { consentMode: true, loadMode: 'advanced', adsDataRedaction: true, urlPassthrough: true }, // advanced = gtag/GTM load always with consent defaults denied (cookieless pings, gcs=G100), tags obey consent update
     legacy: null,             // { localStorageKey: 'cookieConsent', eventName: 'cookie-consent-updated', map: {...} } mirrors choice for older site code
     logEndpoint: null,        // POST JSON consent records here for proof of consent (optional)
     clearCookiesOnReject: true,
@@ -178,9 +178,11 @@
   // cookies to purge when a category is withdrawn / rejected
   // URL patterns of third-party resources that must not load before consent (auto-blocker)
   var BLOCK = [
-    { re: /googletagmanager\.com\/(gtag\/js|gtm\.js)/, cat: 'analytics,marketing' },
-    { re: /google-analytics\.com|analytics\.google\.com|static\.hotjar\.com|hotjar\.io|clarity\.ms|smartlook\.com/, cat: 'analytics' },
-    { re: /connect\.facebook\.net|facebook\.com\/tr|googleadservices\.com|doubleclick\.net|googlesyndication\.com|analytics\.tiktok\.com|snap\.licdn\.com|c\.seznam\.cz\/js\/rc\.js|c\.imedia\.cz|im9\.cz\/js/, cat: 'marketing' },
+    { re: /googletagmanager\.com\/(gtag\/js|gtm\.js)/, cat: 'analytics,marketing', google: true },
+    { re: /google-analytics\.com|analytics\.google\.com/, cat: 'analytics', google: true },
+    { re: /static\.hotjar\.com|hotjar\.io|clarity\.ms|smartlook\.com/, cat: 'analytics' },
+    { re: /googleadservices\.com|doubleclick\.net|googlesyndication\.com/, cat: 'marketing', google: true },
+    { re: /connect\.facebook\.net|facebook\.com\/tr|analytics\.tiktok\.com|snap\.licdn\.com|c\.seznam\.cz\/js\/rc\.js|c\.imedia\.cz|im9\.cz\/js/, cat: 'marketing' },
     { re: /youtube\.com\/embed|youtube-nocookie\.com\/embed|google\.com\/maps\/embed|maps\.google\.com\/maps|frame\.mapy\.cz|player\.vimeo\.com|instagram\.com\/embed|facebook\.com\/plugins/, cat: 'functional' }
   ];
   var PURGE = {
@@ -238,7 +240,8 @@
 
 
   /* ---------- auto-blocker: third-party scripts / iframes / pixels inserted by JS wait for consent ---------- */
-  function blockCatFor(url) { url = String(url || ''); for (var i = 0; i < BLOCK.length; i++) if (BLOCK[i].re.test(url)) return BLOCK[i].cat; return null; }
+  function advanced() { return !!(cfg.google && cfg.google.consentMode && cfg.google.loadMode === 'advanced'); }
+  function blockCatFor(url) { url = String(url || ''); for (var i = 0; i < BLOCK.length; i++) if (BLOCK[i].re.test(url)) return (BLOCK[i].google && advanced()) ? null : BLOCK[i].cat; return null; }
   function neutralize(node, cat, src) {
     rawSetAttr.call(node, 'data-cc', cat); rawSetAttr.call(node, 'data-cc-src', src); rawSetAttr.call(node, 'data-cc-autoblocked', '1');
     if (node.tagName === 'SCRIPT') { rawSetAttr.call(node, 'type', 'text/plain'); node.removeAttribute('src'); }
@@ -271,7 +274,9 @@
   function activateScripts() {
     var nodes = d.querySelectorAll('script[type="text/plain"][data-cc]');
     Array.prototype.forEach.call(nodes, function (s) {
-      if (s.getAttribute('data-cc-loaded') || !allowed(s.getAttribute('data-cc'))) return;
+      if (s.getAttribute('data-cc-loaded')) return;
+      var isGoogleTag = advanced() && /googletagmanager\.com\/(gtag\/js|gtm\.js)|\bgtag\(|['"]GTM-[A-Z0-9]+['"]/.test((s.src || '') + ' ' + (s.src ? '' : s.textContent));
+      if (!isGoogleTag && !allowed(s.getAttribute('data-cc'))) return;
       s.setAttribute('data-cc-loaded', '1');
       var n = d.createElement('script');
       Array.prototype.forEach.call(s.attributes, function (a) { if (a.name !== 'type' && a.name !== 'data-cc' && a.name !== 'data-cc-loaded') n.setAttribute(a.name, a.value); });
