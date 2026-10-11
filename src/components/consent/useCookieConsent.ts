@@ -6,7 +6,7 @@ export interface ConsentRecord { v: number; id: string; ts: number; all: boolean
 interface GMCookieConsentApi {
   get(): ConsentRecord | null; allowed(cat: string): boolean; show(): void; showSettings(): void; hideSettings(): void;
   acceptAll(): void; rejectAll(): void; accept(cats: string[]): void; withdraw(cats?: string[]): void; reset(): void; apply(): void;
-  on(fn: (c: ConsentRecord) => void): () => void; texts: Record<string, any>; lang: string;
+  on(fn: (c: ConsentRecord) => void): () => void; texts: Record<string, unknown>; lang: string;
 }
 declare global { interface Window { GMCookieConsent?: GMCookieConsentApi; GMCookieConsentConfig?: Record<string, unknown> } }
 
