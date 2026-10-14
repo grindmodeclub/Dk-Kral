@@ -4,7 +4,11 @@ import { ChevronDown } from 'lucide-react';
 import BackgroundParticles from '../components/BackgroundParticles';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
-import { supabase, PriceListItem } from '../lib/supabase';
+import HeroImage, { heroSrcSet, HERO_SIZES } from '../components/HeroImage';
+import SiteFooter from '../components/SiteFooter';
+import { useSiteData, fetchPriceList, groupPriceList, PriceGroup } from '../lib/siteData';
+import { SITE_URL } from '../lib/business';
+import { graph, dentistNode, websiteNode, webPageNode, breadcrumbNode, priceListNode } from '../lib/schema';
 import { Language } from '../App';
 
 const translations = {
@@ -68,13 +72,6 @@ const translations = {
   } as Record<string, { en: string }>,
 };
 
-const CATEGORY_SORT_ORDER: Record<string, number> = {
-  'Stomatologické výkony': 1,
-  'Protetika': 2,
-  'Chirurgie': 3,
-  'Dentální Hygiena': 4,
-};
-
 const fallbackPricingData = [
   {
     category: 'Stomatologické výkony',
@@ -118,13 +115,17 @@ const fallbackPricingData = [
 
 interface PricingProps {
   language: Language;
+  onNavigate?: (pageId: string, sectionId?: string) => void;
   targetSectionId?: string | null;
   onClearTargetSection?: () => void;
 }
 
-const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingProps) => {
-  const [pricingData, setPricingData] = useState<{ category: string; items: { name: string; price: string }[] }[]>(fallbackPricingData);
-  const [loading, setLoading] = useState(true);
+const Pricing = ({ language, targetSectionId, onClearTargetSection, onNavigate }: PricingProps) => {
+  const initial = useSiteData();
+  const [pricingData, setPricingData] = useState<PriceGroup[]>(
+    initial?.priceList.length ? groupPriceList(initial.priceList) : fallbackPricingData
+  );
+  const [loading, setLoading] = useState(!initial?.priceList.length);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -157,35 +158,9 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
 
   const fetchPricing = async () => {
     try {
-      const { data } = await supabase
-        .from('price_list')
-        .select('*')
-        .order('display_order');
-
-      if (data && data.length > 0) {
-        const grouped = data.reduce((acc, item: PriceListItem) => {
-          if (!acc[item.category]) {
-            acc[item.category] = [];
-          }
-          acc[item.category].push({
-            name: item.service_name,
-            price: item.price_string,
-          });
-          return acc;
-        }, {} as Record<string, { name: string; price: string }[]>);
-
-        const formattedData = Object.entries(grouped).map(([category, items]) => ({
-          category,
-          items: items as { name: string; price: string }[],
-        }));
-
-        const sortedData = formattedData.sort((a, b) => {
-          const orderA = CATEGORY_SORT_ORDER[a.category] || 999;
-          const orderB = CATEGORY_SORT_ORDER[b.category] || 999;
-          return orderA - orderB;
-        });
-
-        setPricingData(sortedData);
+      const data = await fetchPriceList();
+      if (data.length > 0) {
+        setPricingData(groupPriceList(data));
       }
     } catch (error) {
       console.error('Error fetching pricing:', error);
@@ -206,25 +181,8 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
 
   const translatePrice = (price: string): string => {
     if (language === 'cs') return price;
-    if (price === 'Hrazeno ZP') return translations.coveredByInsurance.en;
+    if (price.trim() === 'Hrazeno ZP') return translations.coveredByInsurance.en;
     return price;
-  };
-
-  const pricingSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Ceník zubní ordinace DK KRÁL – Hradec Králové",
-    "url": "https://dkkral.cz/cenik",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Dentální hygiena dospělý – 2 280 Kč" },
-      { "@type": "ListItem", "position": 2, "name": "Dentální hygiena dítě do 15 let – 1 140 Kč" },
-      { "@type": "ListItem", "position": 3, "name": "Bělení zubů kombinované – 6 745 Kč" },
-      { "@type": "ListItem", "position": 4, "name": "Bělení zubů ordinační – 3 580 Kč" },
-      { "@type": "ListItem", "position": 5, "name": "Zubní implantát – od 16 000 Kč" },
-      { "@type": "ListItem", "position": 6, "name": "Keramická korunka – od 13 200 Kč" },
-      { "@type": "ListItem", "position": 7, "name": "Fazeta celokeramická – od 14 000 Kč" },
-      { "@type": "ListItem", "position": 8, "name": "Endodoncie – 5 160–14 620 Kč" }
-    ]
   };
 
   const seoContent = {
@@ -233,8 +191,8 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
       en: 'Dentist Price List Hradec Králové | Transparent Pricing | DK KRÁL',
     },
     description: {
-      cs: 'Ceník DK KRÁL: dentální hygiena od 1 140 Kč, implantát od 16 000 Kč, bělení zubů od 3 580 Kč, výplň od 2 580 Kč. Transparentní ceny bez překvapení v centru Hradce Králové.',
-      en: 'DK KRÁL price list: dental hygiene from 1 140 CZK, implant from 16 000 CZK, teeth whitening from 3 580 CZK. Transparent pricing in Hradec Králové.',
+      cs: 'Ceník zubaře DK KRÁL v Hradci Králové: dentální hygiena, zubní implantáty, bělení zubů, výplně, fazety a korunky. Výkony hrazené pojišťovnou jsou v ceníku označené.',
+      en: 'Price list of DK KRÁL dentist in Hradec Králové: dental hygiene, dental implants, teeth whitening, fillings, veneers and crowns. Treatments covered by insurance are marked.',
     },
     keywords: {
       cs: 'ceník zubaře Hradec Králové, cena dentální hygiena HK, cena implantát HK, cena bělení zubů HK, ceník zubního ošetření, kolik stojí zubař Hradec Králové, cena endodoncie HK, cena keramická korunka HK, fazety cena HK',
@@ -242,22 +200,32 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
     },
   };
 
+  const structuredData = graph(
+    dentistNode(initial?.team),
+    websiteNode(),
+    webPageNode('pricing', seoContent.title.cs, seoContent.description.cs),
+    breadcrumbNode('pricing'),
+    initial?.priceList.length ? priceListNode(initial.priceList) : null
+  );
+
   return (
     <div ref={scrollContainerRef} className="h-screen overflow-y-auto relative">
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
         keywords={seoContent.keywords[language]}
-        canonicalUrl="https://dkkral.cz/cenik"
-        structuredData={pricingSchema}
+        canonicalUrl={`${SITE_URL}/cenik`}
+        language={language}
+        structuredData={structuredData}
+        preloadImage={{ srcSet: heroSrcSet('zubni-mikroskop'), sizes: HERO_SIZES }}
       />
       <BackgroundParticles />
 
       <section className="min-h-screen relative pt-48 flex flex-col">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/dsc_4507.jpg"
-            alt="Ceník zubních služeb DK KRÁL Hradec Králové"
+          <HeroImage
+            name="zubni-mikroskop"
+            alt="Dentální mikroskop v zubní ordinaci DK KRÁL v Hradci Králové"
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-white/20" />
@@ -385,6 +353,8 @@ const Pricing = ({ language, targetSectionId, onClearTargetSection }: PricingPro
         </Reveal>
         </div>
       </section>
+
+      <SiteFooter language={language} onNavigate={onNavigate} />
     </div>
   );
 };

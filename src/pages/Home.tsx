@@ -5,7 +5,20 @@ import BackgroundParticles from '../components/BackgroundParticles';
 import SwipeHint from '../components/SwipeHint';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
-import { supabase, TeamMember, PlannedHoliday, FeaturedService } from '../lib/supabase';
+import HeroImage, { heroSrcSet, HERO_SIZES } from '../components/HeroImage';
+import SiteFooter from '../components/SiteFooter';
+import { TeamMember, PlannedHoliday, FeaturedService, PriceListItem } from '../lib/supabase';
+import {
+  useSiteData,
+  fetchTeam,
+  fetchActiveHolidays,
+  fetchFeaturedServices,
+  fetchPriceList,
+  formatDateRange,
+} from '../lib/siteData';
+import { BUSINESS, ADDRESS_LINE, openingHoursRows, SITE_URL } from '../lib/business';
+import { graph, dentistNode, websiteNode, webPageNode, faqNode } from '../lib/schema';
+import { buildFaq } from '../content/faq';
 import { Language } from '../App';
 
 const translations = {
@@ -43,66 +56,23 @@ const translations = {
 interface HomeProps {
   language: Language;
   onNavigateNext?: () => void;
+  onNavigate?: (pageId: string, sectionId?: string) => void;
 }
 
-const Home = ({ language, onNavigateNext }: HomeProps) => {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [loadingTeam, setLoadingTeam] = useState(true);
-  const [activeHolidays, setActiveHolidays] = useState<PlannedHoliday[]>([]);
-  const [featuredServices, setFeaturedServices] = useState<FeaturedService[]>([]);
+const Home = ({ language, onNavigateNext, onNavigate }: HomeProps) => {
+  const initial = useSiteData();
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initial?.team ?? []);
+  const [loadingTeam, setLoadingTeam] = useState(!initial);
+  const [activeHolidays, setActiveHolidays] = useState<PlannedHoliday[]>(initial?.holidays ?? []);
+  const [featuredServices, setFeaturedServices] = useState<FeaturedService[]>(initial?.featuredServices ?? []);
+  const [priceList, setPriceList] = useState<PriceListItem[]>(initial?.priceList ?? []);
 
   useEffect(() => {
-    fetchTeamMembers();
-    fetchActiveHolidays();
-    fetchFeaturedServices();
+    fetchTeam().then(setTeamMembers).catch(() => {}).finally(() => setLoadingTeam(false));
+    fetchActiveHolidays().then(setActiveHolidays).catch(() => {});
+    fetchFeaturedServices().then(setFeaturedServices).catch(() => {});
+    fetchPriceList().then(setPriceList).catch(() => {});
   }, []);
-
-  const fetchTeamMembers = async () => {
-    const { data } = await supabase
-      .from('team_members')
-      .select('*')
-      .order('display_order');
-
-    if (data) {
-      setTeamMembers(data);
-    }
-    setLoadingTeam(false);
-  };
-
-  const fetchActiveHolidays = async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const { data } = await supabase
-      .from('planned_holidays')
-      .select('*')
-      .eq('is_active', true)
-      .gte('end_date', today)
-      .order('start_date');
-
-    if (data) {
-      setActiveHolidays(data);
-    }
-  };
-
-  const fetchFeaturedServices = async () => {
-    const { data } = await supabase
-      .from('featured_services')
-      .select('*')
-      .eq('is_active', true)
-      .order('display_order');
-
-    if (data) {
-      setFeaturedServices(data);
-    }
-  };
-
-  const formatDateRange = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const formatOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'numeric', year: 'numeric' };
-    const locale = language === 'cs' ? 'cs-CZ' : 'en-GB';
-    if (startDate === endDate) return start.toLocaleDateString(locale, formatOptions);
-    return `${start.toLocaleDateString(locale, formatOptions)} – ${end.toLocaleDateString(locale, formatOptions)}`;
-  };
 
   const features = [
     { icon: Award, title: translations.features.expertise[language] },
@@ -110,145 +80,14 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
     { icon: Shield, title: translations.features.safety[language] },
   ];
 
-  const dentistSchema = {
-    "@context": "https://schema.org",
-    "@type": ["Dentist", "LocalBusiness", "MedicalBusiness"],
-    "name": "DK KRÁL – Dentální hygiena a Implantologie",
-    "alternateName": ["DK Král", "DK KRAL", "Zubař Hradec Králové DK Král"],
-    "image": [
-      "https://dkkral.cz/hero-reception.jpg",
-      "https://dkkral.cz/logo_dk_kral_gold.png"
-    ],
-    "@id": "https://dkkral.cz",
-    "url": "https://dkkral.cz",
-    "telephone": "+420770600076",
-    "email": "recepce@dkkral.cz",
-    "description": "Soukromá zubní klinika v centru Hradce Králové. Specializujeme se na dentální hygienu (GBT protokol), implantáty, bělení zubů, endodoncii a komplexní stomatologickou péči. MDDr. Ondřej Král.",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Resslova 745/5",
-      "addressLocality": "Hradec Králové",
-      "addressRegion": "Královéhradecký kraj",
-      "postalCode": "500 02",
-      "addressCountry": "CZ"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 50.216445,
-      "longitude": 15.8247235
-    },
-    "hasMap": "https://maps.google.com/?cid=DK+Kr%C3%A1l+Dent%C3%A1ln%C3%AD+hygiena",
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday"],
-        "opens": "07:30",
-        "closes": "15:30"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": "Thursday",
-        "opens": "07:30",
-        "closes": "14:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": "Friday",
-        "opens": "07:30",
-        "closes": "11:30"
-      }
-    ],
-    "priceRange": "$$",
-    "currenciesAccepted": "CZK",
-    "paymentAccepted": "Cash, Credit Card",
-    "areaServed": [
-      { "@type": "City", "name": "Hradec Králové" },
-      { "@type": "City", "name": "Pardubice" },
-      { "@type": "City", "name": "Třebechovice pod Orebem" },
-      { "@type": "City", "name": "Nový Bydžov" }
-    ],
-    "medicalSpecialty": [
-      "Dentistry",
-      "Oral Surgery",
-      "Dental Hygiene",
-      "Implantology"
-    ],
-    "availableService": [
-      { "@type": "MedicalProcedure", "name": "Dentální hygiena GBT", "url": "https://dkkral.cz/sluzby" },
-      { "@type": "MedicalProcedure", "name": "Zubní implantáty", "url": "https://dkkral.cz/sluzby" },
-      { "@type": "MedicalProcedure", "name": "Bělení zubů", "url": "https://dkkral.cz/sluzby" },
-      { "@type": "MedicalProcedure", "name": "Endodoncie – kořenové kanálky", "url": "https://dkkral.cz/sluzby" },
-      { "@type": "MedicalProcedure", "name": "Keramické fazety a korunky", "url": "https://dkkral.cz/sluzby" },
-      { "@type": "MedicalProcedure", "name": "Fotokompozitní výplně", "url": "https://dkkral.cz/sluzby" }
-    ],
-    "sameAs": [
-      "https://dkkral.cz"
-    ]
-  };
-
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Kde se nachází zubař DK KRÁL v Hradci Králové?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Zubní ordinace DK KRÁL se nachází na adrese Resslova 745/5, 500 02 Hradec Králové. Ordinace je snadno dostupná z centra města."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Jaké jsou ordinační hodiny zubaře DK KRÁL?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ordinační hodiny: Pondělí–Středa 7:30–15:30, Čtvrtek 7:30–14:00, Pátek 7:30–11:30. Víkendy zavřeno."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Přijímá DK KRÁL nové pacienty?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ano, DK KRÁL přijímá nové pacienty, zejména na dentální hygienu. Pro objednání zavolejte na +420 770 600 076 nebo napište na recepce@dkkral.cz."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Kolik stojí dentální hygiena v DK KRÁL?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Vstupní ošetření dentální hygienistkou pro dospělé stojí 2 280 Kč, pro děti do 15 let 1 140 Kč. Opakované ošetření (RECALL) od 1 140 Kč."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Nabízí DK KRÁL zubní implantáty?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ano, DK KRÁL nabízí kompletní implantologickou péči. Cena zubního implantátu začíná od 16 000 Kč, korunka na implantát od 15 400 Kč."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Jak probíhá bělení zubů v DK KRÁL?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Nabízíme ordinační bělení (3 580 Kč), domácí bělení s nosiči a gely (7 315 Kč) a kombinované bělení (6 745 Kč). Výsledky jsou viditelné ihned po první proceduře."
-        }
-      }
-    ]
-  };
-
   const seoContent = {
     title: {
       cs: 'Zubař Hradec Králové | DK KRÁL – Implantáty, Dentální hygiena, Bělení',
       en: 'Dentist Hradec Králové | DK KRÁL – Implants, Dental Hygiene, Whitening',
     },
     description: {
-      cs: 'Soukromá zubní ordinace DK KRÁL v centru Hradce Králové. Implantáty od 16 000 Kč, bělení zubů, dentální hygiena GBT. MDDr. Ondřej Král – objednejte se: +420 770 600 076.',
-      en: 'Private dental clinic DK KRÁL in the centre of Hradec Králové. Implants from 16 000 CZK, teeth whitening, GBT dental hygiene. MDDr. Ondřej Král – book: +420 770 600 076.',
+      cs: 'Zubař v Hradci Králové – soukromá zubní ordinace DK KRÁL, Resslova 745/5. Dentální hygiena GBT, implantáty, bělení zubů, fazety a korunky. Objednání: +420 770 600 076.',
+      en: 'Dentist in Hradec Králové – private dental clinic DK KRÁL, Resslova 745/5. GBT dental hygiene, implants, teeth whitening, veneers and crowns. Booking: +420 770 600 076.',
     },
     keywords: {
       cs: 'zubař Hradec Králové, zubar Hradec Kralove, zubař HK, zubní ordinace Hradec Králové, dentální hygiena Hradec Králové, implantáty Hradec Králové, bělení zubů Hradec Králové, DK KRÁL, MDDr. Ondřej Král, soukromý zubař HK, záchovná stomatologie, endodoncie HK, keramické korunky HK, fazety HK, GBT hygiena',
@@ -256,21 +95,14 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
     },
   };
 
-  const faqItems = language === 'cs' ? [
-    { q: 'Kde se nachází zubař DK KRÁL v Hradci Králové?', a: 'Zubní ordinace DK KRÁL se nachází na adrese Resslova 745/5, 500 02 Hradec Králové. Ordinace je snadno dostupná z centra města.' },
-    { q: 'Jaké jsou ordinační hodiny zubaře DK KRÁL?', a: 'Ordinační hodiny: Pondělí–Středa 7:30–15:30, Čtvrtek 7:30–14:00, Pátek 7:30–11:30. Víkendy zavřeno.' },
-    { q: 'Přijímá DK KRÁL nové pacienty?', a: 'Ano, DK KRÁL přijímá nové pacienty, zejména na dentální hygienu. Pro objednání zavolejte na +420 770 600 076 nebo napište na recepce@dkkral.cz.' },
-    { q: 'Kolik stojí dentální hygiena v DK KRÁL?', a: 'Vstupní ošetření dentální hygienistkou pro dospělé stojí 2 280 Kč, pro děti do 15 let 1 140 Kč. Opakované ošetření (RECALL) od 1 140 Kč.' },
-    { q: 'Nabízí DK KRÁL zubní implantáty?', a: 'Ano, DK KRÁL nabízí kompletní implantologickou péči. Cena zubního implantátu začíná od 16 000 Kč, korunka na implantát od 15 400 Kč.' },
-    { q: 'Jak probíhá bělení zubů v DK KRÁL?', a: 'Nabízíme ordinační bělení (3 580 Kč), domácí bělení s nosiči a gely (7 315 Kč) a kombinované bělení (6 745 Kč). Výsledky jsou viditelné ihned po první proceduře.' },
-  ] : [
-    { q: 'Where is DK KRÁL dental clinic in Hradec Králové?', a: 'DK KRÁL dental clinic is located at Resslova 745/5, 500 02 Hradec Králové. The office is easily accessible from the city centre.' },
-    { q: 'What are the opening hours of DK KRÁL?', a: 'Opening hours: Monday–Wednesday 7:30–15:30, Thursday 7:30–14:00, Friday 7:30–11:30. Weekends closed.' },
-    { q: 'Does DK KRÁL accept new patients?', a: 'Yes, DK KRÁL accepts new patients, especially for dental hygiene. Call +420 770 600 076 or email recepce@dkkral.cz to book.' },
-    { q: 'How much does dental hygiene cost at DK KRÁL?', a: 'Initial dental hygiene for adults costs 2 280 CZK, for children under 15 it is 1 140 CZK. Follow-up (RECALL) from 1 140 CZK.' },
-    { q: 'Does DK KRÁL offer dental implants?', a: 'Yes, DK KRÁL provides complete implant care. Dental implant starts from 16 000 CZK, crown on implant from 15 400 CZK.' },
-    { q: 'How does teeth whitening work at DK KRÁL?', a: 'We offer in-office whitening (3 580 CZK), home whitening with trays and gels (7 315 CZK), and combined whitening (6 745 CZK). Results are visible immediately.' },
-  ];
+  const faqItems = buildFaq(language, priceList);
+
+  const structuredData = graph(
+    dentistNode(teamMembers),
+    websiteNode(),
+    webPageNode('home', seoContent.title.cs, seoContent.description.cs),
+    faqNode(buildFaq('cs', priceList))
+  );
 
   return (
     <div className="h-screen overflow-y-auto relative">
@@ -278,17 +110,18 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
         title={seoContent.title[language]}
         description={seoContent.description[language]}
         keywords={seoContent.keywords[language]}
-        canonicalUrl="https://dkkral.cz"
-        ogImage="https://dkkral.cz/hero-reception.jpg"
-        structuredData={[dentistSchema, faqSchema]}
+        canonicalUrl={`${SITE_URL}/`}
+        language={language}
+        structuredData={structuredData}
+        preloadImage={{ srcSet: heroSrcSet('ordinace-dk-kral'), sizes: HERO_SIZES }}
       />
       <BackgroundParticles />
 
       <section className="min-h-screen relative pt-48 flex flex-col">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/dsc_4546_–_kopia_(1).jpg"
-            alt="Zubní ordinace DK KRÁL v Hradci Králové - moderní recepce"
+          <HeroImage
+            name="ordinace-dk-kral"
+            alt="Moderní ošetřovna zubní ordinace DK KRÁL v Hradci Králové"
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-white/20" />
@@ -361,8 +194,23 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
             <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4 text-center">
               {translations.aboutTitle[language]}
             </h2>
-            <p className="text-base md:text-lg text-dark/60 mb-8 text-center max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-dark/60 mb-4 text-center max-w-2xl mx-auto">
               {translations.aboutDescription[language]}
+            </p>
+            <p className="text-base md:text-lg text-dark/60 mb-8 text-center max-w-2xl mx-auto">
+              {language === 'cs' ? (
+                <>
+                  Jako zubař v Hradci Králové nabízíme záchovnou stomatologii, endodoncii, fazety a korunky, chirurgii
+                  včetně zubních implantátů a dentální hygienu metodou GBT s bělením zubů. Najdete nás na adrese {ADDRESS_LINE},
+                  objednat se můžete na <a href={`tel:${BUSINESS.phone}`} className="text-gold hover:underline">{BUSINESS.phoneDisplay}</a>.
+                </>
+              ) : (
+                <>
+                  As a dentist in Hradec Králové we provide restorative dentistry, endodontics, veneers and crowns, surgery
+                  including dental implants and GBT dental hygiene with teeth whitening. Find us at {ADDRESS_LINE},
+                  book on <a href={`tel:${BUSINESS.phone}`} className="text-gold hover:underline">{BUSINESS.phoneDisplay}</a>.
+                </>
+              )}
             </p>
           </Reveal>
 
@@ -412,7 +260,11 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
                       {member.photo_url ? (
                         <img
                           src={member.photo_url}
-                          alt={`${member.full_name} - Zubař DK KRÁL Hradec Králové`}
+                          alt={`${member.role ? member.role + ' ' : ''}${member.full_name} – tým zubní ordinace DK KRÁL, Hradec Králové`}
+                          loading="lazy"
+                          decoding="async"
+                          width={384}
+                          height={512}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -479,7 +331,7 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
                           <div className="w-2 h-2 bg-gold rounded-full flex-shrink-0 mt-2" />
                           <div className="flex-1 min-w-0 max-w-full">
                             <p className="text-base break-words max-w-full">
-                              <span className="font-semibold">{formatDateRange(holiday.start_date, holiday.end_date)}</span>
+                              <span className="font-semibold">{formatDateRange(holiday.start_date, holiday.end_date, language)}</span>
                               <span className="mx-2">|</span>
                               <span>{language === 'en' && holiday.description_en ? holiday.description_en : holiday.description}</span>
                             </p>
@@ -549,30 +401,14 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Pondělí' : 'Monday'}</td>
-                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–15:30</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Úterý' : 'Tuesday'}</td>
-                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–15:30</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Středa' : 'Wednesday'}</td>
-                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–15:30</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Čtvrtek' : 'Thursday'}</td>
-                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–14:00</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80 border-b border-gray-100">{language === 'cs' ? 'Pátek' : 'Friday'}</td>
-                      <td className="px-6 py-3 text-right font-medium text-dark border-b border-gray-100">7:30–11:30</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-dark/80">{language === 'cs' ? 'Sobota, Neděle' : 'Saturday, Sunday'}</td>
-                      <td className="px-6 py-3 text-right font-medium text-dark/50">{language === 'cs' ? 'Zavřeno' : 'Closed'}</td>
-                    </tr>
+                    {openingHoursRows(language).map((row, i, rows) => (
+                      <tr key={row.day} className="hover:bg-gray-50">
+                        <td className={`px-6 py-3 text-dark/80 ${i < rows.length - 1 ? 'border-b border-gray-100' : ''}`}>{row.day}</td>
+                        <td className={`px-6 py-3 text-right font-medium ${row.hours ? 'text-dark' : 'text-dark/50'} ${i < rows.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                          {row.hours ?? (language === 'cs' ? 'Zavřeno' : 'Closed')}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -604,25 +440,7 @@ const Home = ({ language, onNavigateNext }: HomeProps) => {
         </div>
       </section>
 
-      <footer className="bg-dark px-6 lg:px-12 py-12 relative">
-        <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <address className="not-italic text-white/80 mb-4 leading-relaxed">
-            <strong className="text-white">DK KRÁL – Dentální hygiena a Implantologie</strong><br />
-            Resslova 745/5, 500 02 Hradec Králové<br />
-            <a href="tel:+420770600076" className="text-gold hover:text-gold/80 transition-colors">+420 770 600 076</a>
-            {' | '}
-            <a href="mailto:recepce@dkkral.cz" className="text-gold hover:text-gold/80 transition-colors">recepce@dkkral.cz</a>
-          </address>
-          <a
-            href="https://maps.google.com/?cid=15951681850103427233"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block text-gold hover:text-gold/80 transition-colors underline"
-          >
-            {language === 'cs' ? 'Zobrazit na Google Maps' : 'View on Google Maps'}
-          </a>
-        </div>
-      </footer>
+      <SiteFooter language={language} onNavigate={onNavigate} />
     </div>
   );
 };

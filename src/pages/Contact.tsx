@@ -5,7 +5,11 @@ import BackgroundParticles from '../components/BackgroundParticles';
 import FloatingCrowns from '../components/FloatingCrowns';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
-import { supabase, PlannedHoliday } from '../lib/supabase';
+import SiteFooter from '../components/SiteFooter';
+import { PlannedHoliday } from '../lib/supabase';
+import { useSiteData, fetchActiveHolidays, formatDateRange } from '../lib/siteData';
+import { BUSINESS, SITE_URL, openingHoursRows } from '../lib/business';
+import { graph, dentistNode, websiteNode, webPageNode, breadcrumbNode } from '../lib/schema';
 import { Language } from '../App';
 import ConsentIframe from '../components/consent/ConsentIframe';
 
@@ -62,48 +66,16 @@ const translations = {
 
 interface ContactProps {
   language: Language;
+  onNavigate?: (pageId: string, sectionId?: string) => void;
 }
 
-const Contact = ({ language }: ContactProps) => {
-  const [activeHolidays, setActiveHolidays] = useState<PlannedHoliday[]>([]);
+const Contact = ({ language, onNavigate }: ContactProps) => {
+  const initial = useSiteData();
+  const [activeHolidays, setActiveHolidays] = useState<PlannedHoliday[]>(initial?.holidays ?? []);
 
   useEffect(() => {
-    fetchActiveHolidays();
+    fetchActiveHolidays().then(setActiveHolidays).catch(() => {});
   }, []);
-
-  const fetchActiveHolidays = async () => {
-    const today = new Date().toISOString().split('T')[0];
-
-    const { data } = await supabase
-      .from('planned_holidays')
-      .select('*')
-      .eq('is_active', true)
-      .gte('end_date', today)
-      .order('start_date');
-
-    if (data) {
-      setActiveHolidays(data);
-    }
-  };
-
-  const formatDateRange = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    const formatOptions: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-    };
-
-    const locale = language === 'cs' ? 'cs-CZ' : 'en-GB';
-
-    if (startDate === endDate) {
-      return start.toLocaleDateString(locale, formatOptions);
-    }
-
-    return `${start.toLocaleDateString(locale, formatOptions)} - ${end.toLocaleDateString(locale, formatOptions)}`;
-  };
 
   const getHolidayDescription = (holiday: PlannedHoliday) => {
     if (language === 'en' && holiday.description_en) {
@@ -112,63 +84,10 @@ const Contact = ({ language }: ContactProps) => {
     return holiday.description;
   };
 
-  const openingHours = [
-    { day: translations.days.monday[language], hours: '7:30-15:30' },
-    { day: translations.days.tuesday[language], hours: '7:30-15:30' },
-    { day: translations.days.wednesday[language], hours: '7:30-15:30' },
-    { day: translations.days.thursday[language], hours: '7:30-14:00' },
-    { day: translations.days.friday[language], hours: '7:30-11:30' },
-    { day: translations.days.weekend[language], hours: translations.closed[language] },
-  ];
-
-  const contactSchema = {
-    "@context": "https://schema.org",
-    "@type": "Dentist",
-    "name": "DK KRÁL – Dentální hygiena a Implantologie",
-    "@id": "https://dkkral.cz",
-    "url": "https://dkkral.cz/kontakt",
-    "telephone": "+420770600076",
-    "email": "recepce@dkkral.cz",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Resslova 745/5",
-      "addressLocality": "Hradec Králové",
-      "addressRegion": "Královéhradecký kraj",
-      "postalCode": "500 02",
-      "addressCountry": "CZ"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 50.216445,
-      "longitude": 15.8247235
-    },
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday"],
-        "opens": "07:30",
-        "closes": "15:30"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": "Thursday",
-        "opens": "07:30",
-        "closes": "14:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": "Friday",
-        "opens": "07:30",
-        "closes": "11:30"
-      }
-    ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+420770600076",
-      "contactType": "reservations",
-      "availableLanguage": ["Czech", "English"]
-    }
-  };
+  const openingHours = openingHoursRows(language).map((row) => ({
+    day: row.day,
+    hours: row.hours ?? translations.closed[language],
+  }));
 
   const seoContent = {
     title: {
@@ -176,8 +95,8 @@ const Contact = ({ language }: ContactProps) => {
       en: 'Contact – Dentist Hradec Králové | Opening Hours | DK KRÁL',
     },
     description: {
-      cs: 'Zubní ordinace DK KRÁL: Resslova 745/5, Hradec Králové. Tel: +420 770 600 076. Ordinační hodiny Po–Pá 7:30–15:30. Přijímáme nové pacienty na dentální hygienu.',
-      en: 'Dental clinic DK KRÁL: Resslova 745/5, Hradec Králové. Tel: +420 770 600 076. Opening hours Mon–Fri 7:30–15:30. Accepting new patients for dental hygiene.',
+      cs: 'Zubař DK KRÁL, Resslova 745/5, 500 02 Hradec Králové. Tel. +420 770 600 076, recepce@dkkral.cz. Ordinační hodiny Po–St 7:30–15:30, Čt 7:30–14:00, Pá 7:30–11:30.',
+      en: 'Dentist DK KRÁL, Resslova 745/5, 500 02 Hradec Králové. Tel. +420 770 600 076, recepce@dkkral.cz. Opening hours Mon–Wed 7:30–15:30, Thu 7:30–14:00, Fri 7:30–11:30.',
     },
     keywords: {
       cs: 'kontakt zubař Hradec Králové, zubní ordinace Resslova HK, objednání zubař HK, ordinační hodiny DK KRÁL, telefon zubař Hradec Králové, adresa zubaře HK, jak se objednat k zubaři Hradec Králové',
@@ -185,14 +104,22 @@ const Contact = ({ language }: ContactProps) => {
     },
   };
 
+  const structuredData = graph(
+    dentistNode(initial?.team),
+    websiteNode(),
+    webPageNode('contact', seoContent.title.cs, seoContent.description.cs),
+    breadcrumbNode('contact')
+  );
+
   return (
     <div className="h-screen overflow-y-auto relative">
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
         keywords={seoContent.keywords[language]}
-        canonicalUrl="https://dkkral.cz/kontakt"
-        structuredData={contactSchema}
+        canonicalUrl={`${SITE_URL}/kontakt`}
+        language={language}
+        structuredData={structuredData}
       />
       <BackgroundParticles />
 
@@ -279,17 +206,17 @@ const Contact = ({ language }: ContactProps) => {
               <h3 className="text-xl font-semibold text-dark mb-2">{translations.address[language]}</h3>
               <address className="not-italic">
                 <a
-                  href="https://maps.google.com/?cid=15951681850103427233"
+                  href={BUSINESS.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block hover:text-gold transition-colors"
                 >
-                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">Resslova 745/5</p>
-                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">Hradec Králové</p>
-                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">500 02</p>
+                  <p className="text-lg font-semibold text-dark hover:text-gold transition-colors">{BUSINESS.name}</p>
+                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">{BUSINESS.street}</p>
+                  <p className="text-lg text-dark/80 hover:text-gold transition-colors">{BUSINESS.postalCode} {BUSINESS.city}</p>
                 </a>
               </address>
-              <p className="text-base text-dark/60 mt-2">IČO: 143 45 111</p>
+              <p className="text-base text-dark/60 mt-2">IČO: {BUSINESS.ico}</p>
             </div>
           </div>
 
@@ -299,7 +226,7 @@ const Contact = ({ language }: ContactProps) => {
             rel="noopener noreferrer"
             className="block rounded-xl overflow-hidden shadow-lg border border-gray-200 hover:border-gold hover:shadow-xl transition-all cursor-pointer"
           >
-            <ConsentIframe category="functional"
+            <ConsentIframe category="functional" lang={language}
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2545.3267789757415!2d15.832092576741437!3d50.208246571256186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470c2b5d3e0a8d25%3A0x8f4b7e3c9d5a2b1c!2sResslova%20745%2F5%2C%20500%2002%20Hradec%20Kr%C3%A1lov%C3%A9!5e0!3m2!1scs!2scz!4v1736362890123!5m2!1scs!2scz"
               width="100%"
               height="400"
@@ -307,7 +234,7 @@ const Contact = ({ language }: ContactProps) => {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Mapa ordinace DK KRAL"
+              title="Mapa – zubní ordinace DK KRÁL, Resslova 745/5, Hradec Králové"
             />
           </a>
           </div>
@@ -323,10 +250,10 @@ const Contact = ({ language }: ContactProps) => {
               {translations.phone[language]}
             </h3>
             <a
-              href="tel:+420770600076"
+              href={`tel:${BUSINESS.phone}`}
               className="block text-lg text-dark/70 hover:text-gold transition-colors"
             >
-              +420 770 600 076
+              {BUSINESS.phoneDisplay}
             </a>
             </div>
           </Reveal>
@@ -340,10 +267,10 @@ const Contact = ({ language }: ContactProps) => {
               {translations.email[language]}
             </h3>
             <a
-              href="mailto:recepce@dkkral.cz"
+              href={`mailto:${BUSINESS.email}`}
               className="block text-lg text-dark/70 hover:text-gold transition-colors"
             >
-              recepce@dkkral.cz
+              {BUSINESS.email}
             </a>
             </div>
           </Reveal>
@@ -376,7 +303,7 @@ const Contact = ({ language }: ContactProps) => {
                         <div className="w-2 h-2 bg-gold rounded-full flex-shrink-0 mt-2" />
                         <div className="flex-1 min-w-0 max-w-full">
                           <p className="text-base break-words max-w-full">
-                            <span className="font-semibold">{formatDateRange(holiday.start_date, holiday.end_date)}</span>
+                            <span className="font-semibold">{formatDateRange(holiday.start_date, holiday.end_date, language)}</span>
                             <span className="mx-2">|</span>
                             <span>{getHolidayDescription(holiday)}</span>
                           </p>
@@ -417,6 +344,8 @@ const Contact = ({ language }: ContactProps) => {
         </Reveal>
         </div>
       </section>
+
+      <SiteFooter language={language} onNavigate={onNavigate} />
     </div>
   );
 };

@@ -1,14 +1,29 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Stethoscope, Sparkles, Crown, Scissors, ChevronDown } from 'lucide-react';
 import BackgroundParticles from '../components/BackgroundParticles';
 import Reveal from '../components/Reveal';
 import SEO from '../components/SEO';
+import HeroImage, { heroSrcSet, HERO_SIZES } from '../components/HeroImage';
+import SiteFooter from '../components/SiteFooter';
+import { useSiteData, fetchFeaturedServices } from '../lib/siteData';
+import { FeaturedService } from '../lib/supabase';
+import { BUSINESS, ADDRESS_LINE, SITE_URL } from '../lib/business';
+import { graph, dentistNode, websiteNode, webPageNode, breadcrumbNode, servicesNode } from '../lib/schema';
 import { Language } from '../App';
 
 const translations = {
   heroTitle: {
     cs: 'Naše služby',
     en: 'Our Services',
+  },
+  heroSubtitle: {
+    cs: 'Zubař Hradec Králové – stomatologie, implantáty a dentální hygiena',
+    en: 'Dentist in Hradec Králové – dentistry, implants and dental hygiene',
+  },
+  featuredTitle: {
+    cs: 'Nejžádanější ošetření',
+    en: 'Most Requested Treatments',
   },
   sectionTitle: {
     cs: 'Naše stomatologické služby',
@@ -56,6 +71,13 @@ interface ServicesProps {
 }
 
 const Services = ({ language, onNavigate }: ServicesProps) => {
+  const initial = useSiteData();
+  const [featuredServices, setFeaturedServices] = useState<FeaturedService[]>(initial?.featuredServices ?? []);
+
+  useEffect(() => {
+    fetchFeaturedServices().then(setFeaturedServices).catch(() => {});
+  }, []);
+
   const servicesData = [
     {
       category: translations.categories.dental[language],
@@ -88,66 +110,13 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
     onNavigate?.('pricing', categoryId);
   };
 
-  const servicesSchema = {
-    "@context": "https://schema.org",
-    "@type": "MedicalClinic",
-    "name": "DK KRÁL",
-    "url": "https://dkkral.cz/sluzby",
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Stomatologické služby DK KRÁL",
-      "itemListElement": [
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "MedicalProcedure",
-            "name": "Dentální hygiena GBT",
-            "description": "Profesionální čištění zubů metodou GBT (Guided Biofilm Therapy). Ošetření pod dásní, bělení, prevence parodontózy."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "MedicalProcedure",
-            "name": "Zubní implantáty Hradec Králové",
-            "description": "Náhrada chybějícího zubu titanovým implantátem. Trvalé řešení pro dlouhodobé zdraví chrupu."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "MedicalProcedure",
-            "name": "Bělení zubů",
-            "description": "Ordinační, domácí nebo kombinované bělení zubů s okamžitým výsledkem."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "MedicalProcedure",
-            "name": "Endodoncie – kořenové kanálky",
-            "description": "Kompletní endodontické ošetření kořenových kanálků pro záchranu zubu."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "MedicalProcedure",
-            "name": "Keramické fazety a korunky",
-            "description": "Estetická protetika: celokeramické fazety a korunky pro dokonalý úsměv."
-          }
-        }
-      ]
-    }
-  };
-
   const seoContent = {
     title: {
       cs: 'Zubní služby Hradec Králové | Implantáty, Dentální hygiena, Bělení | DK KRÁL',
       en: 'Dental Services Hradec Králové | Implants, Hygiene, Whitening | DK KRÁL',
     },
     description: {
-      cs: 'Zubní klinika DK KRÁL nabízí: dentální hygienu GBT, implantáty, bělení zubů, endodoncii, fazety a korunky. Bezbolestné ošetření, centrum Hradce Králové.',
+      cs: 'Služby zubaře DK KRÁL v Hradci Králové: dentální hygiena GBT, zubní implantáty, bělení zubů, endodoncie, fazety a korunky, extrakce. Resslova 745/5, tel. +420 770 600 076.',
       en: 'Dental clinic DK KRÁL offers: GBT dental hygiene, implants, teeth whitening, endodontics, veneers and crowns. Painless treatment, centre of Hradec Králové.',
     },
     keywords: {
@@ -156,22 +125,32 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
     },
   };
 
+  const structuredData = graph(
+    dentistNode(initial?.team),
+    websiteNode(),
+    webPageNode('services', seoContent.title.cs, seoContent.description.cs),
+    breadcrumbNode('services'),
+    servicesNode(featuredServices)
+  );
+
   return (
     <div className="h-screen overflow-y-auto relative">
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
         keywords={seoContent.keywords[language]}
-        canonicalUrl="https://dkkral.cz/sluzby"
-        structuredData={servicesSchema}
+        canonicalUrl={`${SITE_URL}/sluzby`}
+        language={language}
+        structuredData={structuredData}
+        preloadImage={{ srcSet: heroSrcSet('ordinace-zubni-kreslo'), sizes: HERO_SIZES }}
       />
       <BackgroundParticles />
 
       <section className="min-h-screen relative pt-48 flex flex-col">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/berrb_erbrebre_(1).jpg"
-            alt="Stomatologické služby DK KRÁL - dentální hygiena a implantáty Hradec Králové"
+          <HeroImage
+            name="ordinace-zubni-kreslo"
+            alt="Zubní křeslo v ordinaci DK KRÁL v Hradci Králové"
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-white/20" />
@@ -196,6 +175,9 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
               <h1 className="text-4xl md:text-5xl font-bold text-dark text-center">
                 {translations.heroTitle[language]}
               </h1>
+              <p className="text-lg md:text-2xl font-light text-dark/80 text-center mt-4">
+                {translations.heroSubtitle[language]}
+              </p>
             </div>
           </div>
         </motion.div>
@@ -229,7 +211,26 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
               <h2 className="text-4xl md:text-5xl font-bold text-dark mb-4">
                 {translations.sectionTitle[language]}
               </h2>
-              <div className="w-24 h-0.5 bg-gold mx-auto" />
+              <div className="w-24 h-0.5 bg-gold mx-auto mb-6" />
+              <p className="text-base md:text-lg text-dark/70 max-w-3xl mx-auto">
+                {language === 'cs' ? (
+                  <>
+                    DK KRÁL je soukromá zubní ordinace v centru Hradce Králové. Jako zubař v Hradci Králové pečujeme o celý
+                    chrup: od výplní a ošetření kořenových kanálků přes celokeramické fazety a korunky až po extrakce a zubní
+                    implantáty. Dentální hygienistky pracují metodou GBT (Guided Biofilm Therapy) a nabízíme i bělení zubů.
+                    Ordinace sídlí na adrese {ADDRESS_LINE}, objednat se můžete na{' '}
+                    <a href={`tel:${BUSINESS.phone}`} className="text-gold hover:underline">{BUSINESS.phoneDisplay}</a>.
+                  </>
+                ) : (
+                  <>
+                    DK KRÁL is a private dental clinic in the centre of Hradec Králové. We take care of your whole smile: from
+                    fillings and root canal treatment through all-ceramic veneers and crowns to extractions and dental implants.
+                    Our dental hygienists use the GBT (Guided Biofilm Therapy) method and we also offer teeth whitening.
+                    The clinic is located at {ADDRESS_LINE}, book on{' '}
+                    <a href={`tel:${BUSINESS.phone}`} className="text-gold hover:underline">{BUSINESS.phoneDisplay}</a>.
+                  </>
+                )}
+              </p>
             </div>
           </Reveal>
 
@@ -268,8 +269,41 @@ const Services = ({ language, onNavigate }: ServicesProps) => {
               );
             })}
           </div>
+
+          {featuredServices.length > 0 && (
+            <div className="mt-20">
+              <Reveal>
+                <h2 className="text-3xl md:text-4xl font-bold text-dark mb-10 text-center">
+                  {translations.featuredTitle[language]}
+                </h2>
+              </Reveal>
+              <div className="grid md:grid-cols-2 gap-8">
+                {featuredServices.map((service, index) => (
+                  <Reveal key={service.id} delay={0.1 + index * 0.08}>
+                    <article className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:border-gold hover:shadow-md transition-all h-full">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <h3 className="text-xl font-semibold text-dark">
+                          {language === 'cs' ? service.title_cs : service.title_en}
+                        </h3>
+                        {service.price_string && (
+                          <span className="text-sm font-bold whitespace-nowrap px-3 py-1 bg-gold/10 rounded-full" style={{ color: '#B99355' }}>
+                            {service.price_string}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-dark/70">
+                        {language === 'cs' ? service.description_cs : service.description_en}
+                      </p>
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
+
+      <SiteFooter language={language} onNavigate={onNavigate} />
     </div>
   );
 };

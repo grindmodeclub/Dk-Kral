@@ -2,6 +2,11 @@ import { motion } from 'framer-motion';
 import { ClipboardList, Search, Stethoscope, Shield, ChevronDown } from 'lucide-react';
 import BackgroundParticles from '../components/BackgroundParticles';
 import SEO from '../components/SEO';
+import HeroImage, { heroSrcSet, HERO_SIZES } from '../components/HeroImage';
+import SiteFooter from '../components/SiteFooter';
+import { useSiteData } from '../lib/siteData';
+import { SITE_URL } from '../lib/business';
+import { graph, dentistNode, websiteNode, webPageNode, breadcrumbNode } from '../lib/schema';
 import { Language } from '../App';
 
 const translations = {
@@ -55,9 +60,11 @@ const translations = {
 
 interface ProcessProps {
   language: Language;
+  onNavigate?: (pageId: string, sectionId?: string) => void;
 }
 
-const Process = ({ language }: ProcessProps) => {
+const Process = ({ language, onNavigate }: ProcessProps) => {
+  const initial = useSiteData();
   const steps = [
     {
       icon: Search,
@@ -100,21 +107,31 @@ const Process = ({ language }: ProcessProps) => {
     },
   };
 
+  const structuredData = graph(
+    dentistNode(initial?.team),
+    websiteNode(),
+    webPageNode('process', seoContent.title.cs, seoContent.description.cs),
+    breadcrumbNode('process')
+  );
+
   return (
     <div className="h-screen overflow-y-auto relative scroll-smooth">
       <SEO
         title={seoContent.title[language]}
         description={seoContent.description[language]}
         keywords={seoContent.keywords[language]}
-        canonicalUrl="https://dkkral.cz/prubeh"
+        canonicalUrl={`${SITE_URL}/prubeh`}
+        language={language}
+        structuredData={structuredData}
+        preloadImage={{ srcSet: heroSrcSet('rtg-snimek-prubeh-lecby'), sizes: HERO_SIZES }}
       />
       <BackgroundParticles />
 
       <section className="min-h-screen relative pt-48 flex flex-col">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/prubeh_lecby.jpg"
-            alt="Průběh léčby u zubaře DK KRÁL v Hradci Králové"
+          <HeroImage
+            name="rtg-snimek-prubeh-lecby"
+            alt="Zubní lékařka ukazuje panoramatický RTG snímek chrupu na tabletu"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-white/30" />
@@ -272,6 +289,8 @@ const Process = ({ language }: ProcessProps) => {
           </div>
         </div>
       </section>
+
+      <SiteFooter language={language} onNavigate={onNavigate} />
     </div>
   );
 };

@@ -1,45 +1,38 @@
 import { Helmet } from 'react-helmet-async';
-
-const BASE_URL = 'https://dkkral.cz';
-const DEFAULT_OG_IMAGE = 'https://dkkral.cz/hero-reception.jpg';
+import { BUSINESS } from '../lib/business';
 
 interface SEOProps {
   title: string;
   description: string;
+  canonicalUrl: string;
   keywords?: string;
   ogImage?: string;
-  structuredData?: object | object[];
-  canonicalUrl?: string;
+  structuredData?: object;
+  language?: string;
+  /** Hero obrázok aktuálnej stránky – preload kvôli LCP. */
+  preloadImage?: { srcSet: string; sizes: string };
 }
 
-const SEO = ({ title, description, keywords, ogImage, structuredData, canonicalUrl }: SEOProps) => {
-  const path = typeof window !== 'undefined' ? window.location.pathname : '';
-  const cleanPath = path.replace(/\/+$/, '');
-  const canonical = canonicalUrl || `${BASE_URL}${cleanPath || ''}`;
-  const image = ogImage || DEFAULT_OG_IMAGE;
-
-  const schemas = structuredData
-    ? Array.isArray(structuredData)
-      ? structuredData
-      : [structuredData]
-    : [];
+const SEO = ({ title, description, canonicalUrl, keywords, ogImage, structuredData, language = 'cs', preloadImage }: SEOProps) => {
+  const image = ogImage || BUSINESS.image;
 
   return (
     <Helmet>
+      <html lang={language} />
       <title>{title}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="robots" content="index, follow" />
-      <link rel="canonical" href={canonical} />
+      <meta name="robots" content="index, follow, max-image-preview:large" />
+      <link rel="canonical" href={canonicalUrl} />
 
       <meta property="og:type" content="website" />
-      <meta property="og:url" content={canonical} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:locale" content="cs_CZ" />
+      <meta property="og:locale" content={language === 'en' ? 'en_GB' : 'cs_CZ'} />
       <meta property="og:site_name" content="DK KRÁL" />
 
       <meta name="twitter:card" content="summary_large_image" />
@@ -47,11 +40,15 @@ const SEO = ({ title, description, keywords, ogImage, structuredData, canonicalU
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
 
-      {schemas.map((schema, i) => (
-        <script key={i} type="application/ld+json">
-          {JSON.stringify(schema)}
-        </script>
-      ))}
+      {preloadImage && (
+        <link
+          rel="preload"
+          as="image"
+          {...({ imagesrcset: preloadImage.srcSet, imagesizes: preloadImage.sizes, fetchpriority: 'high' } as Record<string, string>)}
+        />
+      )}
+
+      {structuredData && <script type="application/ld+json">{JSON.stringify(structuredData)}</script>}
     </Helmet>
   );
 };
