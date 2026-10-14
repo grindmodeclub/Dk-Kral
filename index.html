@@ -2,38 +2,23 @@
 <html lang="cs">
   <head>
     <meta charset="UTF-8" />
-        <!-- Cookie consent (SK §109(8) z. 452/2021 / CZ §89(3) z. 127/2005) – must load before any analytics/ads tag -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Cookie consent (SK §109(8) z. 452/2021 / CZ §89(3) z. 127/2005) – must load before any analytics/ads tag -->
     <link rel="stylesheet" href="/cookie-consent/gm-cookie-consent.css">
     <script>window.GMCookieConsentConfig = {"lang":"cs","policyUrl":"/cookies.html","categories":["functional"],"version":1,"siteName":"Zubař Hradec Králové"};</script>
-    <script src="/cookie-consent/gm-cookie-consent.js"></script>
-    <link rel="icon" type="image/png" href="/korunka_gold.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script defer src="/cookie-consent/gm-cookie-consent.js"></script>
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#B99355" />
     <meta name="msvalidate.01" content="5DE0DEFCC6CC27FB00DF4860C7597A38" />
-
-    <title>Zubař Hradec Králové | DK KRÁL - Dentální hygiena a Implantáty</title>
-    <meta name="description" content="Hledáte špičkového zubaře v Hradci Králové? DK KRÁL nabízí komplexní péči: implantáty, bělení zubů a dentální hygienu. Objednejte se online." />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://dkkral.cz" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://dkkral.cz" />
-    <meta property="og:title" content="Zubař Hradec Králové | DK KRÁL - Dentální hygiena a Implantáty" />
-    <meta property="og:description" content="Hledáte špičkového zubaře v Hradci Králové? DK KRÁL nabízí komplexní péči: implantáty, bělení zubů a dentální hygienu. Objednejte se online." />
-    <meta property="og:image" content="https://dkkral.cz/hero-reception.jpg" />
-    <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:site_name" content="DK KRÁL" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Zubař Hradec Králové | DK KRÁL" />
-    <meta name="twitter:description" content="Hledáte špičkového zubaře v Hradci Králové? DK KRÁL nabízí komplexní péči: implantáty, bělení zubů a dentální hygienu." />
-    <meta name="twitter:image" content="https://dkkral.cz/hero-reception.jpg" />
-
+    <!--app-head-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"></noscript>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/entry-client.tsx"></script>
   </body>
 </html>

@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Header';
 import NavigationArrows from './components/NavigationArrows';
 import Home from './pages/Home';
@@ -8,8 +7,10 @@ import Services from './pages/Services';
 import Pricing from './pages/Pricing';
 import Process from './pages/Process';
 import Contact from './pages/Contact';
-import Admin from './pages/admin/Admin';
 import { useSwipe, useKeyboardNavigation } from './hooks/useSwipe';
+
+// Administrácia sa načítava samostatne, verejné stránky ju nepotrebujú
+const AdminApp = lazy(() => import('./pages/admin/AdminApp'));
 
 const pages = ['home', 'services', 'pricing', 'process', 'contact'];
 
@@ -27,6 +28,12 @@ const PATH_TO_PAGE: Record<string, string> = {
   '/cenik': 'pricing',
   '/prubeh': 'process',
   '/kontakt': 'contact',
+};
+
+/** „/sluzby/“, „/sluzby.html“ a „/index.html“ → kanonický tvar bez lomky na konci. */
+const normalizePath = (path: string) => {
+  const clean = path.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/\/+$/, '');
+  return clean || '/';
 };
 
 type PageProps = {
@@ -47,10 +54,12 @@ const pageComponents: Record<string, React.ComponentType<PageProps>> = {
 
 export type Language = 'cs' | 'en';
 
-function MainSite() {
+const currentPath = (initialPath?: string) =>
+  initialPath ?? (typeof window !== 'undefined' ? window.location.pathname : '/');
+
+function MainSite({ initialPath }: { initialPath?: string }) {
   const getInitialPageIndex = () => {
-    const path = window.location.pathname;
-    const pageId = PATH_TO_PAGE[path];
+    const pageId = PATH_TO_PAGE[normalizePath(currentPath(initialPath))];
     if (!pageId) return 0;
     return Math.max(0, pages.indexOf(pageId));
   };
@@ -59,18 +68,25 @@ function MainSite() {
   const [language, setLanguage] = useState<Language>('cs');
   const [targetSectionId, setTargetSectionId] = useState<string | null>(null);
   const previousPageIndex = useRef(currentPageIndex);
+  const isFirstRender = useRef(true);
   const currentPage = pages[currentPageIndex];
 
   useEffect(() => {
     const newPath = PAGE_PATHS[currentPage] || '/';
     if (window.location.pathname !== newPath) {
-      window.history.pushState(null, '', newPath);
+      // Pri prvom načítaní len zjednotíme URL (napr. lomka na konci), do histórie nič nepridávame
+      if (isFirstRender.current) {
+        window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
+      } else {
+        window.history.pushState(null, '', newPath);
+      }
     }
+    isFirstRender.current = false;
   }, [currentPage]);
 
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname;
+      const path = normalizePath(window.location.pathname);
       const pageId = PATH_TO_PAGE[path] || 'home';
       const index = pages.indexOf(pageId);
       if (index !== -1) {
@@ -164,7 +180,8 @@ function MainSite() {
         className="w-full h-screen"
         {...swipeHandlers}
       >
-        <AnimatePresence mode="wait" custom={direction}>
+        {/* initial={false}: prvá (prerenderovaná) stránka je hneď na mieste, swipe medzi stránkami ostáva animovaný */}
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
           <motion.div
             key={currentPage}
             custom={direction}
@@ -194,13 +211,10 @@ function MainSite() {
   );
 }
 
-function App() {
-  const isAdminPath = (path: string) =>
-    path === '/admin' || path.startsWith('/admin/');
+const isAdminPath = (path: string) => path === '/admin' || path.startsWith('/admin/');
 
-  const [isAdmin, setIsAdmin] = useState(() =>
-    isAdminPath(window.location.pathname)
-  );
+function App({ initialPath }: { initialPath?: string }) {
+  const [isAdmin, setIsAdmin] = useState(() => isAdminPath(currentPath(initialPath)));
 
   useEffect(() => {
     const handlePopState = () => {
@@ -212,13 +226,19 @@ function App() {
 
   if (isAdmin) {
     return (
-      <AuthProvider>
-        <Admin />
-      </AuthProvider>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="w-10 h-10 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <AdminApp />
+      </Suspense>
     );
   }
 
-  return <MainSite />;
+  return <MainSite initialPath={initialPath} />;
 }
 
 export default App;
