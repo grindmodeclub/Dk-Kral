@@ -7,6 +7,7 @@ export const SITE_URL = 'https://dkkral.cz';
 export const BUSINESS = {
   name: 'DK KRÁL – Dentální hygiena a Implantologie',
   shortName: 'DK KRÁL',
+  legalName: 'DK KRÁL, s.r.o.',
   phone: '+420770600076',
   phoneDisplay: '+420 770 600 076',
   email: 'recepce@dkkral.cz',
@@ -18,6 +19,12 @@ export const BUSINESS = {
   ico: '143 45 111',
   geo: { latitude: 50.216445, longitude: 15.8247235 },
   mapsUrl: 'https://maps.google.com/?cid=15951681850103427233',
+  // Profily tej istej firmy (rovnaké IČO), aby ich vyhľadávače spojili do jednej entity
+  profiles: [
+    'https://maps.google.com/?cid=15951681850103427233',
+    'https://www.firmy.cz/detail/13562163-dk-kral-hradec-kralove.html',
+    'https://mapy.com/cs/?source=firm&id=13562163',
+  ],
   logo: `${SITE_URL}/img/logo-dk-kral.png`,
   image: `${SITE_URL}/img/og-dk-kral-zubar-hradec-kralove.jpg`,
 } as const;

@@ -26,7 +26,9 @@ export const dentistNode = (team: TeamMember[] = []): Json => ({
   '@type': 'Dentist',
   '@id': DENTIST_ID,
   name: BUSINESS.name,
-  alternateName: ['DK KRÁL', 'DK Král', 'Zubař Hradec Králové DK KRÁL'],
+  legalName: BUSINESS.legalName,
+  alternateName: ['DK KRÁL', 'DK Král', 'DK Král - Dentální hygiena', 'Zubař Hradec Králové DK KRÁL'],
+  identifier: { '@type': 'PropertyValue', propertyID: 'IČO', value: BUSINESS.ico.replace(/\s/g, '') },
   description:
     'Soukromá zubní ordinace v centru Hradce Králové: dentální hygiena metodou GBT, zubní implantáty, bělení zubů, endodoncie, fazety a korunky.',
   url: `${SITE_URL}/`,
@@ -65,7 +67,7 @@ export const dentistNode = (team: TeamMember[] = []): Json => ({
         })),
       }
     : {}),
-  sameAs: [BUSINESS.mapsUrl],
+  sameAs: [...BUSINESS.profiles],
 });
 
 export const websiteNode = (): Json => ({
