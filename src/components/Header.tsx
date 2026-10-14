@@ -53,16 +53,22 @@ const Header = ({ onNavigate, currentPage, language, onLanguageChange, pages }: 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gold/10">
         <div className="container mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
-            <div
+            <a
+              href="/"
               className="cursor-pointer flex-shrink-0"
-              onClick={() => handleNavigate('home')}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigate('home');
+              }}
             >
               <img
-                src="/logo_dk_kral_gold.png"
-                alt="DK KRÁL - Zubař Hradec Králové"
+                src="/img/logo-dk-kral.webp"
+                alt="DK KRÁL – zubař Hradec Králové"
+                width={159}
+                height={120}
                 className="h-10 w-auto"
               />
-            </div>
+            </a>
 
             <div className="flex items-center gap-4 md:gap-6 pointer-events-auto">
               {pages.map((page, index) => {

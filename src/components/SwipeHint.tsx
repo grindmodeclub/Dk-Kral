@@ -16,8 +16,11 @@ const SwipeHint = () => {
       className="pointer-events-none flex items-center justify-center"
     >
       <img
-        src="/swipe_icon.png"
-        alt="Swipe"
+        src="/img/swipe.webp"
+        alt=""
+        aria-hidden="true"
+        width={150}
+        height={150}
         className="w-auto h-auto max-w-[120px] md:max-w-[150px] object-contain"
         style={{ filter: 'invert(1) brightness(2)' }}
       />

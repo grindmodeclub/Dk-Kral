@@ -168,7 +168,7 @@ const FloatingCrowns = () => {
           }}
         >
           <img
-            src="/korunka_gold.png"
+            src="/img/korunka.webp"
             alt=""
             style={{ width: crown.size, height: 'auto' }}
             className="select-none pointer-events-none"
