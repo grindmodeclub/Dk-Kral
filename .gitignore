@@ -21,3 +21,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# lokálne prístupy (nikdy necommitovať)
+CLAUDE.local.md
