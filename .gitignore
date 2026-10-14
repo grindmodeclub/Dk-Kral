@@ -28,3 +28,4 @@ CLAUDE.local.md
 # Local Netlify folder
 .netlify
 dist-server
+.zaloha
