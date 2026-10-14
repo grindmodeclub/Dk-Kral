@@ -24,3 +24,7 @@ dist-ssr
 
 # lokálne prístupy (nikdy necommitovať)
 CLAUDE.local.md
+
+# Local Netlify folder
+.netlify
+dist-server
