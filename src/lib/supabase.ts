@@ -5,12 +5,30 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const isServer = typeof window === 'undefined';
 
+// Zavolá sa po každom úspešnom zápise do databázy (insert/update/delete).
+// Administrácia ním spúšťa prebudovanie webu, aby prerenderované HTML malo nové dáta.
+let onDatabaseWrite: (() => void) | null = null;
+export const setOnDatabaseWrite = (callback: (() => void) | null) => {
+  onDatabaseWrite = callback;
+};
+
+const fetchWithWriteHook: typeof fetch = async (input, init) => {
+  const response = await fetch(input, init);
+  const method = (init?.method ?? 'GET').toUpperCase();
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  if (onDatabaseWrite && response.ok && !['GET', 'HEAD'].includes(method) && url.includes('/rest/v1/')) {
+    onDatabaseWrite();
+  }
+  return response;
+};
+
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: !isServer,
     autoRefreshToken: !isServer,
     detectSessionInUrl: !isServer,
   },
+  global: { fetch: fetchWithWriteHook },
 });
 
 export type PlannedHoliday = {
